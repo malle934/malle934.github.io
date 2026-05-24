@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neural Network Visual Presentation</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f4f8;
+    color: #2d3748;
+    line-height: 1.6;
+  }
+
+  header {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
+    color: white;
+    text-align: center;
+    padding: 40px 20px 30px;
+  }
+  header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  header p  { font-size: 1rem; opacity: 0.85; max-width: 640px; margin: 0 auto; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+  /* ── SECTION TITLES ── */
+  .section-title {
+    text-align: center;
+    padding: 40px 20px 6px;
+  }
+  .section-title h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 6px;
+  }
+  .section-title p { font-size: 14px; color: #718096; }
+
+  /* ── ARCHITECTURE DIAGRAM ── */
+  .diagram-wrap {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 32px 20px 24px;
+    margin: 20px auto;
+    max-width: 1100px;
+    overflow-x: auto;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .diagram-wrap h3 {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #718096;
+    margin-bottom: 24px;
+  }
+
+  .nn-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    min-width: 600px;
+    position: relative;
+  }
+
+  /* layers */
+  .layer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .layer-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .neuron {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    border: 2px solid;
+    position: relative;
+  }
+
+  .neuron-input  { background: #ebf8ff; border-color: #3182ce; color: #2b6cb0; }
+  .neuron-hidden { background: #f3e8ff; border-color: #805ad5; color: #6b46c1; }
+  .neuron-output { background: #f0fff4; border-color: #38a169; color: #276749; }
+
+  /* connector lines using SVG overlay */
+  .connector-area {
+    flex: 1;
+    min-width: 60px;
+    position: relative;
+    height: 260px;
+    z-index: 1;
+  }
+
+  .connector-area svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+
+  .conn-line {
+    stroke: #cbd5e0;
+    stroke-width: 1.2;
+    fill: none;
+    opacity: 0.7;
+  }
+
+  /* data flow label */
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #a0aec0;
+    gap: 4px;
+    margin-top: 12px;
+  }
+
+  .diagram-legend {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .diag-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #4a5568;
+  }
+
+  .diag-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid;
+  }
+
+  /* ── COMPONENT CARDS ── */
+  .comp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin: 20px auto;
+    max-width: 1100px;
+    padding: 0 20px;
+  }
+
+  .comp-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .comp-card:hover {
+    box-shadow: 0 6px 18px rgba(0,0,0,0.09);
+    transform: translateY(-2px);
+  }
+
+  .comp-stripe { height: 4px; }
+
+  .comp-body { padding: 18px 20px; }
+
+  .comp-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+
+  .comp-num {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #a0aec0;
+    margin-bottom: 2px;
+  }
+
+  .comp-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 10px;
+  }
+
+  .comp-desc {
+    font-size: 13px;
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .comp-example {
+    background: #f7fafc;
+    border-left: 3px solid;
+    border-radius: 0 6px 6px 0;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #718096;
+  }
+
+  .comp-example strong {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #a0aec0;
+    margin-bottom: 2px;
+  }
+
+  /* ── SUMMARY ── */
+  .summary-section {
+    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
+    color: white;
+    margin: 40px 0 0;
+    padding: 48px 20px;
+    text-align: center;
+  }
+
+  .summary-section h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .summary-section p {
+    font-size: 14px;
+    opacity: 0.85;
+    max-width: 700px;
+    margin: 0 auto 32px;
+    line-height: 1.7;
+  }
+
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: left;
+  }
+
+  .insight-card {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+
+  .insight-card .icon { font-size: 24px; margin-bottom: 8px; }
+  .insight-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .insight-card p  { font-size: 12px; opacity: 0.8; line-height: 1.55; }
+
+  footer {
+    text-align: center;
+    padding: 24px 20px 36px;
+    font-size: 12px;
+    color: #a0aec0;
+    border-top: 1px solid #e2e8f0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Neural Network Visual Presentation</h1>
+  <p>Exploring the architecture, components, and key concepts behind neural networks — from input to output.</p>
+</header>
+
+<!-- ── ARCHITECTURE DIAGRAM ── -->
+<div class="section-title">
+  <h2>Neural Network Architecture</h2>
+  <p>How data flows from the input layer through hidden layers to the output layer</p>
+</div>
+
+<div class="diagram-wrap container">
+  <h3>Feedforward Neural Network — Data Flow</h3>
+
+  <div class="nn-diagram">
+
+    <!-- INPUT LAYER -->
+    <div class="layer">
+      <div class="layer-label" style="color:#2b6cb0">Input Layer</div>
+      <div class="neuron neuron-input">X₁</div>
+      <div class="neuron neuron-input">X₂</div>
+      <div class="neuron neuron-input">X₃</div>
+      <div style="font-size:20px;color:#3182ce">⋮</div>
+      <div class="neuron neuron-input">Xₙ</div>
+    </div>
+
+    <!-- CONNECTORS 1 -->
+    <div class="connector-area">
+      <svg viewBox="0 0 80 260" preserveAspectRatio="none">
+        <line class="conn-line" x1="0" y1="30"  x2="80" y2="30"/>
+        <line class="conn-line" x1="0" y1="30"  x2="80" y2="92"/>
+        <line class="conn-line" x1="0" y1="30"  x2="80" y2="154"/>
+        <line class="conn-line" x1="0" y1="92"  x2="80" y2="30"/>
+        <line class="conn-line" x1="0" y1="92"  x2="80" y2="92"/>
+        <line class="conn-line" x1="0" y1="92"  x2="80" y2="154"/>
+        <line class="conn-line" x1="0" y1="154" x2="80" y2="30"/>
+        <line class="conn-line" x1="0" y1="154" x2="80" y2="92"/>
+        <line class="conn-line" x1="0" y1="154" x2="80" y2="154"/>
+        <line class="conn-line" x1="0" y1="220" x2="80" y2="30"/>
+        <line class="conn-line" x1="0" y1="220" x2="80" y2="92"/>
+        <line class="conn-line" x1="0" y1="220" x2="80" y2="154"/>
+      </svg>
+      <div class="flow-arrow" style="position:absolute;bottom:0;width:100%">weights →</div>
+    </div>
+
+    <!-- HIDDEN LAYER 1 -->
+    <div class="layer">
+      <div class="layer-label" style="color:#6b46c1">Hidden Layer 1</div>
+      <div class="neuron neuron-hidden">H₁</div>
+      <div class="neuron neuron-hidden">H₂</div>
+      <div class="neuron neuron-hidden">H₃</div>
+    </div>
+
+    <!-- CONNECTORS 2 -->
+    <div class="connector-area">
+      <svg viewBox="0 0 80 260" preserveAspectRatio="none">
+        <line class="conn-line" x1="0" y1="30"  x2="80" y2="30"/>
+        <line class="conn-line" x1="0" y1="30"  x2="80" y2="92"/>
+        <line class="conn-line" x1="0" y1="30"  x2="80" y2="154"/>
+        <line class="conn-line" x1="0" y1="92"  x2="80" y2="30"/>
+        <line class="conn-line" x1="0" y1="92"  x2="80" y2="92"/>
+        <line class="conn-line" x1="0" y1="92"  x2="80" y2="154"/>
+        <line class="conn-line" x1="0" y1="154" x2="80" y2="30"/>
+        <line class="conn-line" x1="0" y1="154" x2="80" y2="92"/>
+        <line class="conn-line" x1="0" y1="154" x2="80" y2="154"/>
+      </svg>
+      <div class="flow-arrow" style="position:absolute;bottom:0;width:100%">activation →</div>
+    </div>
+
+    <!-- HIDDEN LAYER 2 -->
+    <div class="layer">
+      <div class="layer-label" style="color:#6b46c1">Hidden Layer 2</div>
+      <div class="neuron neuron-hidden">H₁</div>
+      <div class="neuron neuron-hidden">H₂</div>
+      <div class="neuron neuron-hidden">H₃</div>
+    </div>
+
+    <!-- CONNECTORS 3 -->
+    <div class="connector-area">
+      <svg viewBox="0 0 80 260" preserveAspectRatio="none">
+        <line class="conn-line" x1="0" y1="30"  x2="80" y2="92"/>
+        <line class="conn-line" x1="0" y1="92"  x2="80" y2="92"/>
+        <line class="conn-line" x1="0" y1="154" x2="80" y2="92"/>
+      </svg>
+      <div class="flow-arrow" style="position:absolute;bottom:0;width:100%">loss →</div>
+    </div>
+
+    <!-- OUTPUT LAYER -->
+    <div class="layer">
+      <div class="layer-label" style="color:#276749">Output Layer</div>
+      <div class="neuron neuron-output" style="width:56px;height:56px;font-size:13px;font-weight:700">Ŷ</div>
+    </div>
+
+  </div>
+
+  <!-- legend -->
+  <div class="diagram-legend">
+    <div class="diag-legend-item">
+      <div class="diag-dot" style="background:#ebf8ff;border-color:#3182ce"></div>
+      Input neurons — raw features
+    </div>
+    <div class="diag-legend-item">
+      <div class="diag-dot" style="background:#f3e8ff;border-color:#805ad5"></div>
+      Hidden neurons — learned representations
+    </div>
+    <div class="diag-legend-item">
+      <div class="diag-dot" style="background:#f0fff4;border-color:#38a169"></div>
+      Output neuron — prediction
+    </div>
+    <div class="diag-legend-item" style="color:#a0aec0">
+      ─── Weighted connections
+    </div>
+  </div>
+
+  <!-- data flow summary -->
+  <div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:20px;flex-wrap:wrap;font-size:12px;color:#718096;">
+    <span style="background:#ebf4ff;color:#2b6cb0;padding:4px 12px;border-radius:20px;font-weight:600">Raw Input</span>
+    <span>→</span>
+    <span style="background:#faf5ff;color:#6b46c1;padding:4px 12px;border-radius:20px;font-weight:600">Weighted Sum + Activation</span>
+    <span>→</span>
+    <span style="background:#faf5ff;color:#6b46c1;padding:4px 12px;border-radius:20px;font-weight:600">Hidden Representations</span>
+    <span>→</span>
+    <span style="background:#f0fff4;color:#276749;padding:4px 12px;border-radius:20px;font-weight:600">Prediction</span>
+    <span>→</span>
+    <span style="background:#fff5f5;color:#c53030;padding:4px 12px;border-radius:20px;font-weight:600">Loss → Backprop → Update</span>
+  </div>
+</div>
+
+<!-- ── COMPONENT CARDS ── -->
+<div class="section-title">
+  <h2>Neural Network Components</h2>
+  <p>The six key building blocks — what they are and what they do</p>
+</div>
+
+<div class="comp-grid">
+
+  <!-- 1. Layers -->
+  <div class="comp-card">
+    <div class="comp-stripe" style="background:#3182ce"></div>
+    <div class="comp-body">
+      <div class="comp-icon">🧱</div>
+      <div class="comp-num">Component 01</div>
+      <div class="comp-title">Layers</div>
+      <p class="comp-desc">Layers are organized groups of neurons that process information at each stage of the network. There are three types: the <strong>input layer</strong> receives raw data, <strong>hidden layers</strong> learn intermediate patterns, and the <strong>output layer</strong> produces the final prediction. Deeper networks (more hidden layers) can learn more complex features.</p>
+      <div class="comp-example" style="border-color:#3182ce">
+        <strong>Example</strong>
+        A CNN for image recognition may have 50+ layers — early layers detect edges, later layers detect faces or objects.
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Neurons -->
+  <div class="comp-card">
+    <div class="comp-stripe" style="background:#805ad5"></div>
+    <div class="comp-body">
+      <div class="comp-icon">⚡</div>
+      <div class="comp-num">Component 02</div>
+      <div class="comp-title">Neurons</div>
+      <p class="comp-desc">Neurons are the basic computing units of a neural network, loosely inspired by biological neurons. Each neuron takes in one or more inputs, multiplies them by weights, adds a bias term, and passes the result through an activation function. The output is then sent to neurons in the next layer.</p>
+      <div class="comp-example" style="border-color:#805ad5">
+        <strong>Formula</strong>
+        output = activation(w₁x₁ + w₂x₂ + ... + wₙxₙ + bias)
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Weights -->
+  <div class="comp-card">
+    <div class="comp-stripe" style="background:#dd6b20"></div>
+    <div class="comp-body">
+      <div class="comp-icon">⚖️</div>
+      <div class="comp-num">Component 03</div>
+      <div class="comp-title">Weights</div>
+      <p class="comp-desc">Weights are numerical parameters on each connection between neurons that determine how much influence one neuron has on the next. They are initialized randomly and then updated during training via backpropagation. A high weight means strong influence; a weight near zero means the connection is almost ignored.</p>
+      <div class="comp-example" style="border-color:#dd6b20">
+        <strong>Analogy</strong>
+        Weights are like volume knobs — they control how loudly each input signal is heard by the next neuron.
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Activation Functions -->
+  <div class="comp-card">
+    <div class="comp-stripe" style="background:#d53f8c"></div>
+    <div class="comp-body">
+      <div class="comp-icon">📈</div>
+      <div class="comp-num">Component 04</div>
+      <div class="comp-title">Activation Functions</div>
+      <p class="comp-desc">Activation functions introduce non-linearity into the network, allowing it to learn complex patterns. Without them, stacking layers would just be matrix multiplication — still linear. Common choices include <strong>ReLU</strong> (max(0,x)) for hidden layers, <strong>Sigmoid</strong> for binary output, and <strong>Softmax</strong> for multi-class output.</p>
+      <div class="comp-example" style="border-color:#d53f8c">
+        <strong>Common Types</strong>
+        ReLU, Sigmoid, Tanh, Softmax, Leaky ReLU
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Loss Functions -->
+  <div class="comp-card">
+    <div class="comp-stripe" style="background:#c53030"></div>
+    <div class="comp-body">
+      <div class="comp-icon">🎯</div>
+      <div class="comp-num">Component 05</div>
+      <div class="comp-title">Loss Functions</div>
+      <p class="comp-desc">A loss function measures how wrong the network's predictions are compared to the true labels. It returns a single number — the lower, the better. The network's entire goal during training is to minimize this value. The choice of loss function depends on the task type (regression vs. classification).</p>
+      <div class="comp-example" style="border-color:#c53030">
+        <strong>Common Types</strong>
+        Mean Squared Error (regression), Cross-Entropy Loss (classification)
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Optimization Algorithms -->
+  <div class="comp-card">
+    <div class="comp-stripe" style="background:#276749"></div>
+    <div class="comp-body">
+      <div class="comp-icon">🔧</div>
+      <div class="comp-num">Component 06</div>
+      <div class="comp-title">Optimization Algorithms</div>
+      <p class="comp-desc">Optimization algorithms update the network's weights after each training step to reduce the loss. <strong>Gradient Descent</strong> moves weights in the direction that decreases loss. <strong>Adam</strong> and <strong>RMSprop</strong> are adaptive variants that adjust the learning rate per parameter, making training faster and more stable.</p>
+      <div class="comp-example" style="border-color:#276749">
+        <strong>Common Types</strong>
+        SGD, Adam, RMSprop, Adagrad, Momentum
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── SUMMARY SLIDE ── -->
+<div class="summary-section">
+  <h2>Summary & Key Insights</h2>
+  <p>Visualizing neural networks makes abstract mathematical concepts concrete and actionable. Understanding each component's role clarifies why design decisions — like choosing ReLU over Sigmoid or Adam over SGD — matter in practice.</p>
+
+  <div class="insights-grid">
+    <div class="insight-card">
+      <div class="icon">🧩</div>
+      <h4>Everything Is Connected</h4>
+      <p>Each layer depends on the one before it. Poor weight initialization or a bad activation function cascades through the entire network.</p>
+    </div>
+    <div class="insight-card">
+      <div class="icon">🔁</div>
+      <h4>Training Is Iterative</h4>
+      <p>The network learns by repeatedly making predictions, measuring error via the loss function, and adjusting weights through backpropagation.</p>
+    </div>
+    <div class="insight-card">
+      <div class="icon">⚙️</div>
+      <h4>Hyperparameters Matter</h4>
+      <p>Number of layers, neurons, learning rate, and activation functions all significantly impact how well and how fast a model learns.</p>
+    </div>
+    <div class="insight-card">
+      <div class="icon">📊</div>
+      <h4>Noise Affects Learning</h4>
+      <p>High data noise requires more regularization. The TF Playground clearly shows how noisy data slows convergence and reduces accuracy.</p>
+    </div>
+    <div class="insight-card">
+      <div class="icon">🎯</div>
+      <h4>Non-linearity Is Essential</h4>
+      <p>Without activation functions, no matter how many layers are added, the network can only learn linear boundaries — useless for complex data.</p>
+    </div>
+    <div class="insight-card">
+      <div class="icon">🚀</div>
+      <h4>Modern Optimizers Help</h4>
+      <p>Adam consistently outperforms basic SGD by adapting learning rates, making it the default choice for most deep learning tasks today.</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  AIML-501 · Neural Network Visual Presentation · Portfolio Artifact 2
+</footer>
+
+</body>
+</html>
