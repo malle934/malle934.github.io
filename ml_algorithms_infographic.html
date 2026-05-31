@@ -3,580 +3,287 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ML Algorithm Visual Framework</title>
+<title>ML Algorithm Framework — Artifact 01</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0a0f2e;
+  --navy2: #0f1640;
+  --purple: #6c3bff;
+  --blue: #3b82f6;
+  --cyan: #06b6d4;
+  --pink: #ec4899;
+  --green: #10b981;
+  --orange: #f97316;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --card: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.08);
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--navy); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; }
+.blob { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
+.blob-1 { width: 600px; height: 600px; background: rgba(59,130,246,0.15); top: -200px; left: -100px; }
+.blob-2 { width: 500px; height: 500px; background: rgba(6,182,212,0.1); bottom: -100px; right: -100px; }
 
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f0f4f8;
-    color: #2d3748;
-    line-height: 1.6;
-  }
+/* NAV */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 40px; display: flex; align-items: center; justify-content: space-between; background: rgba(10,15,46,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+.nav-logo { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: linear-gradient(90deg, var(--blue), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.nav-back { font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
+.nav-back:hover { color: var(--text); }
 
-  header {
-    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
-    color: white;
-    text-align: center;
-    padding: 40px 20px 30px;
-  }
+/* HERO */
+.hero { position: relative; z-index: 1; text-align: center; padding: 120px 24px 60px; }
+.hero-badge { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(59,130,246,0.4); background: rgba(59,130,246,0.1); border-radius: 100px; padding: 6px 16px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: #93c5fd; margin-bottom: 24px; }
+.hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(36px, 6vw, 64px); font-weight: 700; line-height: 1.1; margin-bottom: 16px; }
+.hero h1 .l1 { display: block; color: var(--text); }
+.hero h1 .l2 { display: block; font-style: italic; background: linear-gradient(135deg, var(--blue), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero-sub { font-size: 16px; color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.7; }
 
-  header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
-  header p  { font-size: 1rem; opacity: 0.85; max-width: 600px; margin: 0 auto; }
+/* LEGEND */
+.legend-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; padding: 24px; position: relative; z-index: 1; }
+.leg { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); font-weight: 500; }
+.leg-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.leg-sep { width: 1px; height: 20px; background: var(--border); }
 
-  .legend {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 16px;
-    background: white;
-    padding: 14px 20px;
-    border-bottom: 1px solid #e2e8f0;
-  }
+/* SECTION */
+.section { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 20px 24px 60px; }
+.sec-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px; }
+.sec-title { font-family: 'Playfair Display', serif; font-size: clamp(24px, 3vw, 34px); font-weight: 700; margin-bottom: 6px; color: var(--text); }
+.sec-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
 
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #4a5568;
-  }
+/* ALGO GRID */
+.algo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 18px; }
 
-  .legend-dot { width: 13px; height: 13px; border-radius: 3px; }
-  .legend-sep { width: 1px; height: 20px; background: #e2e8f0; align-self: center; }
+.algo-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s; position: relative; }
+.algo-card:hover { border-color: rgba(255,255,255,0.16); transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+.card-stripe { height: 3px; }
+.card-body { padding: 20px 22px; }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+.card-num { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); background: rgba(255,255,255,0.06); padding: 3px 9px; border-radius: 100px; flex-shrink: 0; }
+.card-name { font-size: 16px; font-weight: 700; color: var(--text); flex: 1; line-height: 1.3; }
+.type-pill { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; flex-shrink: 0; }
+.pill-sup  { color: #93c5fd; background: rgba(147,197,253,0.12); border: 1px solid rgba(147,197,253,0.25); }
+.pill-unsup { color: #c4b5fd; background: rgba(196,181,253,0.12); border: 1px solid rgba(196,181,253,0.25); }
+.pill-gen  { color: #f9a8d4; background: rgba(249,168,212,0.12); border: 1px solid rgba(249,168,212,0.25); }
+.card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+.domain-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.dtag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 6px; border: 1px solid; }
+.d-tab { color: #86efac; border-color: rgba(134,239,172,0.3); background: rgba(134,239,172,0.08); }
+.d-cv  { color: #fcd34d; border-color: rgba(252,211,77,0.3);  background: rgba(252,211,77,0.08); }
+.d-nlp { color: #67e8f9; border-color: rgba(103,232,249,0.3); background: rgba(103,232,249,0.08); }
+.d-gen { color: #f9a8d4; border-color: rgba(249,168,212,0.3); background: rgba(249,168,212,0.08); }
+.card-footer { border-top: 1px solid var(--border); padding: 11px 22px; font-size: 12px; color: var(--muted); display: flex; gap: 8px; }
+.footer-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.2); flex-shrink: 0; padding-top: 1px; }
 
-  .section-header {
-    text-align: center;
-    padding: 28px 20px 6px;
-  }
+/* MATRIX */
+.matrix-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-top: 32px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 580px; }
+thead th { background: rgba(255,255,255,0.04); padding: 12px 16px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); border-bottom: 1px solid var(--border); text-align: center; }
+thead th:first-child { text-align: left; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+tbody tr:hover { background: rgba(255,255,255,0.03); }
+tbody tr:last-child { border-bottom: none; }
+tbody td { padding: 11px 16px; text-align: center; color: var(--muted); font-size: 15px; }
+tbody td:first-child { text-align: left; font-weight: 600; font-size: 13px; color: var(--text); }
+tbody td:nth-child(2) { font-size: 11px; font-weight: 700; }
+.dot-p { color: #93c5fd; }
+.dot-s { color: rgba(255,255,255,0.2); }
 
-  .section-header h2 {
-    display: inline-block;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 5px 18px;
-    border-radius: 20px;
-    margin-bottom: 3px;
-  }
+/* RELATIONSHIP MAP */
+.map-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px 24px; margin-top: 32px; overflow-x: auto; }
+.map-wrap h3 { text-align: center; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 28px; }
 
-  .section-header p { font-size: 13px; color: #718096; }
-
-  .sup-header  h2 { background: #ebf4ff; color: #2b6cb0; }
-  .unsup-header h2 { background: #f3e8ff; color: #6b21a8; }
-  .gen-header  h2 { background: #fff0f6; color: #9d174d; }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
-    max-width: 1100px;
-    margin: 14px auto 0;
-    padding: 0 20px;
-  }
-
-  .card {
-    background: white;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    transition: box-shadow 0.2s, transform 0.2s;
-  }
-
-  .card:hover {
-    box-shadow: 0 6px 18px rgba(0,0,0,0.10);
-    transform: translateY(-2px);
-  }
-
-  .card-stripe { height: 4px; }
-  .stripe-sup  { background: #4299e1; }
-  .stripe-unsup { background: #9f7aea; }
-  .stripe-gen  { background: #ed64a6; }
-
-  .card-body { padding: 16px 18px; }
-
-  .card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 9px;
-  }
-
-  .card-num  { font-size: 11px; font-weight: 700; color: #a0aec0; flex-shrink: 0; padding-top: 2px; }
-  .card-name { font-size: 15px; font-weight: 700; color: #1a202c; flex: 1; }
-
-  .type-badge {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 20px;
-    flex-shrink: 0;
-  }
-
-  .badge-sup   { background: #ebf4ff; color: #2b6cb0; }
-  .badge-unsup { background: #f3e8ff; color: #6b21a8; }
-  .badge-gen   { background: #fff0f6; color: #9d174d; }
-
-  .card-desc { font-size: 13px; color: #4a5568; margin-bottom: 11px; line-height: 1.55; }
-
-  .domains { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 11px; }
-
-  .domain-tag {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 4px;
-    border: 1px solid;
-  }
-
-  .d-tab { color: #276749; background: #f0fff4; border-color: #9ae6b4; }
-  .d-cv  { color: #c05621; background: #fffaf0; border-color: #fbd38d; }
-  .d-nlp { color: #2c5282; background: #ebf8ff; border-color: #90cdf4; }
-  .d-gen { color: #702459; background: #fff5f7; border-color: #fbb6ce; }
-
-  .card-footer {
-    background: #f7fafc;
-    border-top: 1px solid #e2e8f0;
-    padding: 9px 18px;
-    font-size: 12px;
-    color: #718096;
-    display: flex;
-    gap: 6px;
-    align-items: flex-start;
-  }
-
-  .footer-label {
-    font-weight: 700;
-    color: #a0aec0;
-    text-transform: uppercase;
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    flex-shrink: 0;
-    padding-top: 1px;
-  }
-
-  /* Matrix */
-  .matrix-section {
-    max-width: 1100px;
-    margin: 44px auto 0;
-    padding: 0 20px;
-  }
-
-  .matrix-section h2 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 14px;
-    color: #1a202c;
-    text-align: center;
-  }
-
-  .matrix-wrap {
-    overflow-x: auto;
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-
-  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 580px; }
-
-  thead th {
-    background: #f7fafc;
-    padding: 10px 14px;
-    font-weight: 700;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: #718096;
-    border-bottom: 1px solid #e2e8f0;
-    text-align: center;
-  }
-
-  thead th:first-child { text-align: left; }
-
-  tbody tr:nth-child(even) { background: #fafafa; }
-
-  tbody td {
-    padding: 9px 14px;
-    border-bottom: 1px solid #edf2f7;
-    text-align: center;
-    color: #a0aec0;
-    font-size: 16px;
-  }
-
-  tbody td:first-child { text-align: left; font-weight: 600; font-size: 13px; color: #2d3748; }
-  tbody td:nth-child(2) { font-size: 11px; font-weight: 700; }
-
-  .dot-p { color: #3182ce; }
-  .dot-s { color: #cbd5e0; }
-
-  footer {
-    text-align: center;
-    padding: 28px 20px 40px;
-    font-size: 12px;
-    color: #a0aec0;
-    margin-top: 40px;
-    border-top: 1px solid #e2e8f0;
-  }
+footer { position: relative; z-index: 1; text-align: center; padding: 28px 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+footer span { background: linear-gradient(90deg, var(--blue), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 600; }
 </style>
 </head>
 <body>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
 
-<header>
-  <h1>Machine Learning Algorithm Framework</h1>
-  <p>A visual reference of 10 key ML algorithms — type, domain, and real-world use cases.</p>
-</header>
+<nav>
+  <div class="nav-logo">Artifact 01 — ML Algorithms</div>
+  <a href="index.html" class="nav-back">← Portfolio</a>
+</nav>
 
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#4299e1"></div> Supervised</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#9f7aea"></div> Unsupervised</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#ed64a6"></div> Generative</div>
-  <div class="legend-sep"></div>
-  <div class="legend-item"><span style="color:#276749;font-weight:700;font-size:12px">TAB</span>&nbsp;Tabular</div>
-  <div class="legend-item"><span style="color:#c05621;font-weight:700;font-size:12px">CV</span>&nbsp;Computer Vision</div>
-  <div class="legend-item"><span style="color:#2c5282;font-weight:700;font-size:12px">NLP</span>&nbsp;Natural Language</div>
-  <div class="legend-item"><span style="color:#702459;font-weight:700;font-size:12px">GEN</span>&nbsp;Generative AI</div>
+<div class="hero">
+  <div class="hero-badge">🧠 Artifact 01 · AIML-501</div>
+  <h1><span class="l1">Machine Learning</span><span class="l2">Algorithm Framework</span></h1>
+  <p class="hero-sub">10 algorithms classified by type, application domain, and real-world use cases — with a relationship map and domain matrix.</p>
+</div>
+
+<div class="legend-bar">
+  <div class="leg"><div class="leg-dot" style="background:#3b82f6"></div>Supervised</div>
+  <div class="leg"><div class="leg-dot" style="background:#8b5cf6"></div>Unsupervised</div>
+  <div class="leg"><div class="leg-dot" style="background:#ec4899"></div>Generative</div>
+  <div class="leg-sep"></div>
+  <div class="leg"><span style="color:#86efac;font-weight:700;font-size:11px">TAB</span>&nbsp;Tabular</div>
+  <div class="leg"><span style="color:#fcd34d;font-weight:700;font-size:11px">CV</span>&nbsp;Computer Vision</div>
+  <div class="leg"><span style="color:#67e8f9;font-weight:700;font-size:11px">NLP</span>&nbsp;Natural Language</div>
+  <div class="leg"><span style="color:#f9a8d4;font-weight:700;font-size:11px">GEN</span>&nbsp;Generative AI</div>
 </div>
 
 <!-- SUPERVISED -->
-<div class="section-header sup-header">
-  <h2>01 — Supervised Learning</h2>
-  <p>Learns from labeled input–output pairs</p>
-</div>
+<div class="section">
+  <div class="sec-eyebrow" style="color:#3b82f6">01 — Supervised Learning</div>
+  <div class="sec-title">Learns from Labeled Data</div>
+  <div class="sec-sub">Algorithms trained on input–output pairs to predict outcomes on new data</div>
 
-<div class="grid">
-
-  <div class="card">
-    <div class="card-stripe stripe-sup"></div>
-    <div class="card-body">
-      <div class="card-top">
-        <span class="card-num">01</span>
-        <span class="card-name">Linear Regression</span>
-        <span class="type-badge badge-sup">Supervised</span>
+  <div class="algo-grid">
+    <div class="algo-card">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#3b82f6,#06b6d4)"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="card-num">01</span><span class="card-name">Linear Regression</span><span class="type-pill pill-sup">Supervised</span></div>
+        <p class="card-desc">Fits a straight line through data to predict continuous numeric output by minimizing squared differences between predicted and actual values (OLS). Extends to multiple features via multiple linear regression.</p>
+        <div class="domain-tags"><span class="dtag d-tab">Tabular</span></div>
       </div>
-      <p class="card-desc">Fits a straight line through data to predict a continuous numeric output. Minimizes the sum of squared differences between predicted and actual values (OLS). Extends to multiple features via multiple linear regression.</p>
-      <div class="domains">
-        <span class="domain-tag d-tab">Tabular</span>
-      </div>
+      <div class="card-footer"><span class="footer-label">Use Cases</span>House price prediction, sales forecasting, risk scoring</div>
     </div>
-    <div class="card-footer">
-      <span class="footer-label">Use Cases</span>
-      House price prediction, sales forecasting, stock trend analysis
+
+    <div class="algo-card">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#3b82f6,#06b6d4)"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="card-num">02</span><span class="card-name">Logistic Regression</span><span class="type-pill pill-sup">Supervised</span></div>
+        <p class="card-desc">Despite the name, a classification algorithm. Applies a sigmoid function to a linear combination of features to output class probabilities. Fast, interpretable, strong baseline for binary and multi-class problems.</p>
+        <div class="domain-tags"><span class="dtag d-tab">Tabular</span><span class="dtag d-nlp">NLP</span></div>
+      </div>
+      <div class="card-footer"><span class="footer-label">Use Cases</span>Email spam, medical diagnosis, credit default</div>
+    </div>
+
+    <div class="algo-card">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#3b82f6,#06b6d4)"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="card-num">03</span><span class="card-name">Decision Tree</span><span class="type-pill pill-sup">Supervised</span></div>
+        <p class="card-desc">Recursively splits data by choosing the feature and threshold that best separates classes, maximizing information gain or reducing Gini impurity. Produces an interpretable, flowchart-like model.</p>
+        <div class="domain-tags"><span class="dtag d-tab">Tabular</span></div>
+      </div>
+      <div class="card-footer"><span class="footer-label">Use Cases</span>Loan approval, customer churn, medical triage</div>
+    </div>
+
+    <div class="algo-card">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#3b82f6,#06b6d4)"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="card-num">04</span><span class="card-name">Random Forest</span><span class="type-pill pill-sup">Supervised</span></div>
+        <p class="card-desc">Trains hundreds of decision trees on random data and feature subsets (bagging), combining predictions by majority vote or averaging. Dramatically reduces overfitting and provides feature importance scores.</p>
+        <div class="domain-tags"><span class="dtag d-tab">Tabular</span><span class="dtag d-cv">CV</span></div>
+      </div>
+      <div class="card-footer"><span class="footer-label">Use Cases</span>Fraud detection, feature ranking, clinical risk models</div>
+    </div>
+
+    <div class="algo-card">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#3b82f6,#06b6d4)"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="card-num">05</span><span class="card-name">Support Vector Machine</span><span class="type-pill pill-sup">Supervised</span></div>
+        <p class="card-desc">Finds the hyperplane maximizing the margin between classes. The kernel trick (RBF, polynomial) handles non-linear boundaries. Effective in high-dimensional spaces with limited training samples.</p>
+        <div class="domain-tags"><span class="dtag d-tab">Tabular</span><span class="dtag d-cv">CV</span><span class="dtag d-nlp">NLP</span></div>
+      </div>
+      <div class="card-footer"><span class="footer-label">Use Cases</span>Image classification, text categorization, bioinformatics</div>
+    </div>
+
+    <div class="algo-card">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#3b82f6,#06b6d4)"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="card-num">06</span><span class="card-name">Convolutional Neural Net</span><span class="type-pill pill-sup">Supervised</span></div>
+        <p class="card-desc">Uses learned spatial filters sliding across images to detect a hierarchy of patterns — edges → textures → objects. Pooling layers add translation invariance. Dominant architecture for visual recognition.</p>
+        <div class="domain-tags"><span class="dtag d-cv">CV</span><span class="dtag d-nlp">NLP</span></div>
+      </div>
+      <div class="card-footer"><span class="footer-label">Use Cases</span>Medical imaging, autonomous driving, face recognition</div>
+    </div>
+
+    <div class="algo-card">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#3b82f6,#06b6d4)"></div>
+      <div class="card-body">
+        <div class="card-top"><span class="card-num">07</span><span class="card-name">RNN / LSTM</span><span class="type-pill pill-sup">Supervised</span></div>
+        <p class="card-desc">Processes sequences step by step with a hidden state as memory. LSTM gates (input, forget, output) control information flow across time steps, solving the vanishing-gradient problem of vanilla RNNs.</p>
+        <div class="domain-tags"><span class="dtag d-nlp">NLP</span><span class="dtag d-tab">Tabular</span></div>
+      </div>
+      <div class="card-footer"><span class="footer-label">Use Cases</span>Time-series forecasting, speech recognition, translation</div>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-stripe stripe-sup"></div>
-    <div class="card-body">
-      <div class="card-top">
-        <span class="card-num">02</span>
-        <span class="card-name">Logistic Regression</span>
-        <span class="type-badge badge-sup">Supervised</span>
+  <!-- UNSUPERVISED -->
+  <div style="margin-top:56px">
+    <div class="sec-eyebrow" style="color:#8b5cf6">02 — Unsupervised Learning</div>
+    <div class="sec-title">Finds Structure Without Labels</div>
+    <div class="sec-sub">Discovers patterns and structure in unlabeled data</div>
+    <div class="algo-grid">
+      <div class="algo-card">
+        <div class="card-stripe" style="background:linear-gradient(90deg,#8b5cf6,#ec4899)"></div>
+        <div class="card-body">
+          <div class="card-top"><span class="card-num">08</span><span class="card-name">K-Means Clustering</span><span class="type-pill pill-unsup">Unsupervised</span></div>
+          <p class="card-desc">Partitions data into k clusters by iteratively assigning each point to its nearest centroid, then recomputing centroids until convergence. k must be chosen in advance using the elbow method or silhouette score.</p>
+          <div class="domain-tags"><span class="dtag d-tab">Tabular</span><span class="dtag d-cv">CV</span></div>
+        </div>
+        <div class="card-footer"><span class="footer-label">Use Cases</span>Customer segmentation, image quantization, anomaly detection</div>
       </div>
-      <p class="card-desc">Despite the name, this is a classification algorithm. Applies a sigmoid function to a linear combination of features to produce class probabilities between 0 and 1. Fast, interpretable, and a strong baseline model.</p>
-      <div class="domains">
-        <span class="domain-tag d-tab">Tabular</span>
-        <span class="domain-tag d-nlp">NLP</span>
+
+      <div class="algo-card">
+        <div class="card-stripe" style="background:linear-gradient(90deg,#8b5cf6,#ec4899)"></div>
+        <div class="card-body">
+          <div class="card-top"><span class="card-num">09</span><span class="card-name">Principal Component Analysis</span><span class="type-pill pill-unsup">Unsupervised</span></div>
+          <p class="card-desc">Finds orthogonal directions of maximum variance via eigendecomposition of the covariance matrix. Projecting onto top components reduces dimensionality while preserving the most information.</p>
+          <div class="domain-tags"><span class="dtag d-tab">Tabular</span><span class="dtag d-cv">CV</span><span class="dtag d-nlp">NLP</span></div>
+        </div>
+        <div class="card-footer"><span class="footer-label">Use Cases</span>EDA, noise reduction, Eigenfaces (face recognition)</div>
       </div>
-    </div>
-    <div class="card-footer">
-      <span class="footer-label">Use Cases</span>
-      Email spam detection, medical diagnosis, credit default prediction
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-stripe stripe-sup"></div>
-    <div class="card-body">
-      <div class="card-top">
-        <span class="card-num">03</span>
-        <span class="card-name">Decision Tree</span>
-        <span class="type-badge badge-sup">Supervised</span>
+  <!-- GENERATIVE -->
+  <div style="margin-top:56px">
+    <div class="sec-eyebrow" style="color:#ec4899">03 — Generative / Self-supervised</div>
+    <div class="sec-title">Learns to Generate at Scale</div>
+    <div class="sec-sub">Pre-trained on massive data to model distributions and generate new content</div>
+    <div class="algo-grid">
+      <div class="algo-card">
+        <div class="card-stripe" style="background:linear-gradient(90deg,#ec4899,#f97316)"></div>
+        <div class="card-body">
+          <div class="card-top"><span class="card-num">10</span><span class="card-name">Transformer</span><span class="type-pill pill-gen">Generative</span></div>
+          <p class="card-desc">Multi-head self-attention models relationships between all positions in a sequence simultaneously — no recurrence needed. Pre-trained via next-token prediction on massive corpora; fine-tuned for specific tasks. Foundation of all modern LLMs.</p>
+          <div class="domain-tags"><span class="dtag d-nlp">NLP</span><span class="dtag d-cv">CV</span><span class="dtag d-gen">Gen AI</span></div>
+        </div>
+        <div class="card-footer"><span class="footer-label">Use Cases</span>ChatGPT, Claude, BERT, ViT, DALL·E, code generation</div>
       </div>
-      <p class="card-desc">Recursively splits data by choosing the feature and threshold that best separates classes, maximizing information gain or reducing Gini impurity. Produces a readable, flowchart-like model that requires little preprocessing.</p>
-      <div class="domains">
-        <span class="domain-tag d-tab">Tabular</span>
-      </div>
-    </div>
-    <div class="card-footer">
-      <span class="footer-label">Use Cases</span>
-      Loan approval, customer churn prediction, medical triage
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-stripe stripe-sup"></div>
-    <div class="card-body">
-      <div class="card-top">
-        <span class="card-num">04</span>
-        <span class="card-name">Random Forest</span>
-        <span class="type-badge badge-sup">Supervised</span>
-      </div>
-      <p class="card-desc">Trains hundreds of decision trees on random data and feature subsets (bagging), then combines predictions by majority vote or averaging. Dramatically reduces overfitting compared to a single tree and provides feature importance scores.</p>
-      <div class="domains">
-        <span class="domain-tag d-tab">Tabular</span>
-        <span class="domain-tag d-cv">CV</span>
-      </div>
-    </div>
-    <div class="card-footer">
-      <span class="footer-label">Use Cases</span>
-      Fraud detection, feature importance ranking, clinical risk scoring
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-stripe stripe-sup"></div>
-    <div class="card-body">
-      <div class="card-top">
-        <span class="card-num">05</span>
-        <span class="card-name">Support Vector Machine</span>
-        <span class="type-badge badge-sup">Supervised</span>
-      </div>
-      <p class="card-desc">Finds the hyperplane that maximizes the margin between classes. The kernel trick (RBF, polynomial) maps data to higher dimensions to handle non-linear boundaries. Works well in high-dimensional spaces with limited training samples.</p>
-      <div class="domains">
-        <span class="domain-tag d-tab">Tabular</span>
-        <span class="domain-tag d-cv">CV</span>
-        <span class="domain-tag d-nlp">NLP</span>
+  <!-- MATRIX -->
+  <div style="margin-top:56px">
+    <div class="sec-eyebrow" style="color:#06b6d4">Application Domain Matrix</div>
+    <div class="sec-title">Algorithm × Domain Coverage</div>
+    <div class="sec-sub">Primary (●) and secondary (·) applicability across domains</div>
+    <div class="matrix-wrap">
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th style="min-width:170px;text-align:left">Algorithm</th>
+              <th>Type</th><th>Tabular</th><th>Computer Vision</th><th>NLP / Text</th><th>Gen AI</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Linear Regression</td><td style="color:#93c5fd">Supervised</td><td><span class="dot-p">●</span></td><td>–</td><td>–</td><td>–</td></tr>
+            <tr><td>Logistic Regression</td><td style="color:#93c5fd">Supervised</td><td><span class="dot-p">●</span></td><td>–</td><td><span class="dot-s">●</span></td><td>–</td></tr>
+            <tr><td>Decision Tree</td><td style="color:#93c5fd">Supervised</td><td><span class="dot-p">●</span></td><td>–</td><td>–</td><td>–</td></tr>
+            <tr><td>Random Forest</td><td style="color:#93c5fd">Supervised</td><td><span class="dot-p">●</span></td><td><span class="dot-s">●</span></td><td>–</td><td>–</td></tr>
+            <tr><td>SVM</td><td style="color:#93c5fd">Supervised</td><td><span class="dot-p">●</span></td><td><span class="dot-p">●</span></td><td><span class="dot-p">●</span></td><td>–</td></tr>
+            <tr><td>CNN</td><td style="color:#93c5fd">Supervised</td><td>–</td><td><span class="dot-p">●</span></td><td><span class="dot-s">●</span></td><td>–</td></tr>
+            <tr><td>RNN / LSTM</td><td style="color:#93c5fd">Supervised</td><td><span class="dot-s">●</span></td><td>–</td><td><span class="dot-p">●</span></td><td>–</td></tr>
+            <tr><td>K-Means</td><td style="color:#c4b5fd">Unsupervised</td><td><span class="dot-p">●</span></td><td><span class="dot-s">●</span></td><td>–</td><td>–</td></tr>
+            <tr><td>PCA</td><td style="color:#c4b5fd">Unsupervised</td><td><span class="dot-p">●</span></td><td><span class="dot-p">●</span></td><td><span class="dot-s">●</span></td><td>–</td></tr>
+            <tr><td>Transformer</td><td style="color:#f9a8d4">Generative</td><td>–</td><td><span class="dot-p">●</span></td><td><span class="dot-p">●</span></td><td><span class="dot-p">●</span></td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
-    <div class="card-footer">
-      <span class="footer-label">Use Cases</span>
-      Image classification, text categorization, bioinformatics
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-stripe stripe-sup"></div>
-    <div class="card-body">
-      <div class="card-top">
-        <span class="card-num">06</span>
-        <span class="card-name">Convolutional Neural Net</span>
-        <span class="type-badge badge-sup">Supervised</span>
-      </div>
-      <p class="card-desc">Uses learned spatial filters (kernels) that slide across images to detect local patterns in a hierarchy: edges → textures → objects. Pooling layers provide translation invariance. The dominant architecture for visual recognition tasks.</p>
-      <div class="domains">
-        <span class="domain-tag d-cv">CV</span>
-        <span class="domain-tag d-nlp">NLP</span>
-      </div>
-    </div>
-    <div class="card-footer">
-      <span class="footer-label">Use Cases</span>
-      Medical imaging (tumor detection), autonomous driving, face recognition
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-stripe stripe-sup"></div>
-    <div class="card-body">
-      <div class="card-top">
-        <span class="card-num">07</span>
-        <span class="card-name">RNN / LSTM</span>
-        <span class="type-badge badge-sup">Supervised</span>
-      </div>
-      <p class="card-desc">Processes sequences step by step with a hidden state as memory. LSTM gates (input, forget, output) control what information persists across time steps, solving the vanishing-gradient problem that limits plain RNNs on long sequences.</p>
-      <div class="domains">
-        <span class="domain-tag d-nlp">NLP</span>
-        <span class="domain-tag d-tab">Tabular</span>
-      </div>
-    </div>
-    <div class="card-footer">
-      <span class="footer-label">Use Cases</span>
-      Time-series forecasting, speech recognition, machine translation (pre-2017)
-    </div>
-  </div>
-
-</div>
-
-<!-- UNSUPERVISED -->
-<div class="section-header unsup-header" style="margin-top:36px">
-  <h2>02 — Unsupervised Learning</h2>
-  <p>Finds structure in data without labels</p>
-</div>
-
-<div class="grid">
-
-  <div class="card">
-    <div class="card-stripe stripe-unsup"></div>
-    <div class="card-body">
-      <div class="card-top">
-        <span class="card-num">08</span>
-        <span class="card-name">K-Means Clustering</span>
-        <span class="type-badge badge-unsup">Unsupervised</span>
-      </div>
-      <p class="card-desc">Partitions data into k clusters by iteratively assigning each point to its nearest centroid, then recomputing centroids until convergence. The number k must be chosen ahead of time; the elbow method and silhouette score help guide that choice.</p>
-      <div class="domains">
-        <span class="domain-tag d-tab">Tabular</span>
-        <span class="domain-tag d-cv">CV</span>
-      </div>
-    </div>
-    <div class="card-footer">
-      <span class="footer-label">Use Cases</span>
-      Customer segmentation, image color quantization, anomaly detection
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-stripe stripe-unsup"></div>
-    <div class="card-body">
-      <div class="card-top">
-        <span class="card-num">09</span>
-        <span class="card-name">Principal Component Analysis</span>
-        <span class="type-badge badge-unsup">Unsupervised</span>
-      </div>
-      <p class="card-desc">Finds orthogonal directions of maximum variance via eigendecomposition of the covariance matrix. Projecting data onto the top components reduces dimensionality while preserving the most information, aiding visualization and preprocessing.</p>
-      <div class="domains">
-        <span class="domain-tag d-tab">Tabular</span>
-        <span class="domain-tag d-cv">CV</span>
-        <span class="domain-tag d-nlp">NLP</span>
-      </div>
-    </div>
-    <div class="card-footer">
-      <span class="footer-label">Use Cases</span>
-      Exploratory data analysis, noise reduction, Eigenfaces (face recognition)
-    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center"><span style="color:#93c5fd">●</span> Primary &nbsp;&nbsp;<span style="color:rgba(255,255,255,0.2)">●</span> Secondary &nbsp;&nbsp;– Not applicable</p>
   </div>
 
 </div>
 
-<!-- GENERATIVE -->
-<div class="section-header gen-header" style="margin-top:36px">
-  <h2>03 — Generative / Self-supervised</h2>
-  <p>Learns to generate or model data distributions at scale</p>
-</div>
-
-<div class="grid">
-
-  <div class="card">
-    <div class="card-stripe stripe-gen"></div>
-    <div class="card-body">
-      <div class="card-top">
-        <span class="card-num">10</span>
-        <span class="card-name">Transformer</span>
-        <span class="type-badge badge-gen">Generative</span>
-      </div>
-      <p class="card-desc">Uses multi-head self-attention to model relationships between all positions in a sequence simultaneously — no recurrence needed. Pre-trained on massive corpora via next-token prediction, then fine-tuned for downstream tasks. Foundation of all modern LLMs.</p>
-      <div class="domains">
-        <span class="domain-tag d-nlp">NLP</span>
-        <span class="domain-tag d-cv">CV</span>
-        <span class="domain-tag d-gen">Gen AI</span>
-      </div>
-    </div>
-    <div class="card-footer">
-      <span class="footer-label">Use Cases</span>
-      ChatGPT, Claude, BERT (search), ViT (image classification), DALL·E
-    </div>
-  </div>
-
-</div>
-
-<!-- MATRIX -->
-<div class="matrix-section">
-  <h2>Application Domain Matrix</h2>
-  <div class="matrix-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th style="min-width:170px">Algorithm</th>
-          <th>Type</th>
-          <th>Tabular</th>
-          <th>Computer Vision</th>
-          <th>NLP / Text</th>
-          <th>Gen AI</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Linear Regression</td>
-          <td style="color:#2b6cb0">Supervised</td>
-          <td><span class="dot-p">●</span></td>
-          <td>–</td><td>–</td><td>–</td>
-        </tr>
-        <tr>
-          <td>Logistic Regression</td>
-          <td style="color:#2b6cb0">Supervised</td>
-          <td><span class="dot-p">●</span></td>
-          <td>–</td>
-          <td><span class="dot-s">●</span></td>
-          <td>–</td>
-        </tr>
-        <tr>
-          <td>Decision Tree</td>
-          <td style="color:#2b6cb0">Supervised</td>
-          <td><span class="dot-p">●</span></td>
-          <td>–</td><td>–</td><td>–</td>
-        </tr>
-        <tr>
-          <td>Random Forest</td>
-          <td style="color:#2b6cb0">Supervised</td>
-          <td><span class="dot-p">●</span></td>
-          <td><span class="dot-s">●</span></td>
-          <td>–</td><td>–</td>
-        </tr>
-        <tr>
-          <td>SVM</td>
-          <td style="color:#2b6cb0">Supervised</td>
-          <td><span class="dot-p">●</span></td>
-          <td><span class="dot-p">●</span></td>
-          <td><span class="dot-p">●</span></td>
-          <td>–</td>
-        </tr>
-        <tr>
-          <td>CNN</td>
-          <td style="color:#2b6cb0">Supervised</td>
-          <td>–</td>
-          <td><span class="dot-p">●</span></td>
-          <td><span class="dot-s">●</span></td>
-          <td>–</td>
-        </tr>
-        <tr>
-          <td>RNN / LSTM</td>
-          <td style="color:#2b6cb0">Supervised</td>
-          <td><span class="dot-s">●</span></td>
-          <td>–</td>
-          <td><span class="dot-p">●</span></td>
-          <td>–</td>
-        </tr>
-        <tr>
-          <td>K-Means</td>
-          <td style="color:#6b21a8">Unsupervised</td>
-          <td><span class="dot-p">●</span></td>
-          <td><span class="dot-s">●</span></td>
-          <td>–</td><td>–</td>
-        </tr>
-        <tr>
-          <td>PCA</td>
-          <td style="color:#6b21a8">Unsupervised</td>
-          <td><span class="dot-p">●</span></td>
-          <td><span class="dot-p">●</span></td>
-          <td><span class="dot-s">●</span></td>
-          <td>–</td>
-        </tr>
-        <tr>
-          <td>Transformer</td>
-          <td style="color:#9d174d">Generative</td>
-          <td>–</td>
-          <td><span class="dot-p">●</span></td>
-          <td><span class="dot-p">●</span></td>
-          <td><span class="dot-p">●</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <p style="font-size:12px;color:#a0aec0;margin-top:8px;text-align:center">
-    <span style="color:#3182ce">●</span> Primary domain &nbsp;&nbsp;
-    <span style="color:#cbd5e0">●</span> Secondary/emerging &nbsp;&nbsp; – Not applicable
-  </p>
-</div>
-
-<footer>
-  AIML-501 · Machine Learning Algorithm Visual Framework · Portfolio Artifact
-</footer>
-
+<footer><p>AIML-501 · ML Algorithm Framework · <span>Artifact 01</span></p></footer>
 </body>
 </html>

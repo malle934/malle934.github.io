@@ -3,307 +3,673 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AIML-501 Professional Portfolio</title>
+<title>AIML-501 — Professional Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f0f4f8;
-    color: #2d3748;
-    line-height: 1.6;
-  }
+:root {
+  --navy:   #0a0f2e;
+  --navy2:  #0f1640;
+  --purple: #6c3bff;
+  --blue:   #3b82f6;
+  --cyan:   #06b6d4;
+  --pink:   #ec4899;
+  --text:   #e2e8f0;
+  --muted:  #94a3b8;
+  --card:   rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.08);
+}
 
-  header {
-    background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
-    color: white;
-    text-align: center;
-    padding: 48px 20px 36px;
-  }
+html { scroll-behavior: smooth; }
 
-  header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
-  header p  { font-size: 1rem; opacity: 0.85; max-width: 560px; margin: 0 auto; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--navy);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-  .bio-section {
-    background: white;
-    border-bottom: 1px solid #e2e8f0;
-    padding: 32px 20px;
-    text-align: center;
-  }
+/* ── NOISE TEXTURE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
 
-  .bio-section h2 {
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #a0aec0;
-    margin-bottom: 10px;
-  }
+/* ── GLOW BLOBS ── */
+.blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+.blob-1 { width: 600px; height: 600px; background: rgba(108,59,255,0.18); top: -200px; left: -200px; }
+.blob-2 { width: 500px; height: 500px; background: rgba(6,182,212,0.12); bottom: -100px; right: -100px; }
+.blob-3 { width: 400px; height: 400px; background: rgba(236,72,153,0.08); top: 50%; left: 50%; transform: translate(-50%,-50%); }
 
-  .bio-section p {
-    font-size: 15px;
-    color: #4a5568;
-    max-width: 680px;
-    margin: 0 auto 16px;
-    line-height: 1.7;
-  }
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 16px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(10,15,46,0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
 
-  .value-prop {
-    display: inline-block;
-    background: #ebf4ff;
-    color: #2b6cb0;
-    border: 1px solid #bee3f8;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: 600;
-    max-width: 600px;
-  }
+.nav-logo {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, var(--purple), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-  .container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
+.nav-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+}
 
-  .section-title {
-    text-align: center;
-    padding: 40px 20px 8px;
-  }
+.nav-links a {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
 
-  .section-title h2 {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #1a202c;
-    margin-bottom: 6px;
-  }
+.nav-links a:hover { color: var(--text); }
 
-  .section-title p { font-size: 14px; color: #718096; }
+/* ── HERO ── */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 100px 24px 60px;
+}
 
-  /* ── ARTIFACT CARDS ── */
-  .artifacts {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-    gap: 20px;
-    max-width: 900px;
-    margin: 20px auto 48px;
-    padding: 0 20px;
-  }
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(108,59,255,0.4);
+  background: rgba(108,59,255,0.1);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #a78bfa;
+  margin-bottom: 28px;
+}
 
-  .artifact-card {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    transition: box-shadow 0.2s, transform 0.2s;
-  }
+.hero-badge span {
+  width: 6px; height: 6px;
+  background: #a78bfa;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
 
-  .artifact-card:hover {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.10);
-    transform: translateY(-3px);
-  }
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
 
-  .artifact-stripe { height: 5px; }
+.hero h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(42px, 7vw, 80px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
 
-  .artifact-body { padding: 22px 22px 16px; }
+.hero h1 .name-line {
+  display: block;
+  background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-  .artifact-num {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #a0aec0;
-    margin-bottom: 6px;
-  }
+.hero h1 .role-line {
+  display: block;
+  background: linear-gradient(135deg, var(--purple) 0%, var(--cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-style: italic;
+}
 
-  .artifact-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a202c;
-    margin-bottom: 10px;
-  }
+.hero-sub {
+  font-size: 17px;
+  color: var(--muted);
+  max-width: 520px;
+  margin: 20px auto 40px;
+  line-height: 1.7;
+  font-weight: 400;
+}
 
-  .artifact-desc {
-    font-size: 13px;
-    color: #4a5568;
-    line-height: 1.6;
-    margin-bottom: 14px;
-  }
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--purple), var(--blue));
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 13px 28px;
+  border-radius: 100px;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 0 40px rgba(108,59,255,0.4);
+}
 
-  .meta-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
+.hero-cta:hover { opacity: 0.9; transform: translateY(-2px); }
 
-  .meta-pill {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 20px;
-    border: 1px solid;
-  }
+.hero-scroll {
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
 
-  .pill-blue  { color: #2b6cb0; background: #ebf4ff; border-color: #bee3f8; }
-  .pill-purple{ color: #6b21a8; background: #f3e8ff; border-color: #d8b4fe; }
-  .pill-green { color: #276749; background: #f0fff4; border-color: #9ae6b4; }
+.scroll-line {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, var(--purple), transparent);
+  animation: scrollDown 2s infinite;
+}
 
-  .details-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
+@keyframes scrollDown {
+  0% { opacity: 0; transform: scaleY(0); transform-origin: top; }
+  50% { opacity: 1; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(1); transform-origin: bottom; }
+}
 
-  .detail-item {
-    background: #f7fafc;
-    border-radius: 6px;
-    padding: 8px 10px;
-    font-size: 12px;
-  }
+/* ── ABOUT ── */
+.about-section {
+  position: relative;
+  z-index: 1;
+  padding: 100px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
 
-  .detail-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #a0aec0;
-    margin-bottom: 2px;
-  }
+.section-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin-bottom: 12px;
+}
 
-  .detail-value { color: #4a5568; }
+.section-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 20px;
+  color: var(--text);
+}
 
-  .view-btn {
-    display: block;
-    text-align: center;
-    padding: 11px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: opacity 0.15s;
-    margin: 0 22px 20px;
-  }
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 48px;
+  margin-top: 40px;
+  align-items: start;
+}
 
-  .view-btn:hover { opacity: 0.85; }
+@media (max-width: 720px) { .about-grid { grid-template-columns: 1fr; gap: 32px; } }
 
-  .btn-blue  { background: #2b6cb0; color: white; }
-  .btn-purple{ background: #6b46c1; color: white; }
+.about-text p {
+  font-size: 15px;
+  color: #94a3b8;
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
 
-  /* ── FOOTER ── */
-  footer {
-    text-align: center;
-    padding: 24px 20px 36px;
-    font-size: 12px;
-    color: #a0aec0;
-    border-top: 1px solid #e2e8f0;
-  }
+.value-card {
+  background: linear-gradient(135deg, rgba(108,59,255,0.15), rgba(6,182,212,0.1));
+  border: 1px solid rgba(108,59,255,0.3);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-top: 8px;
+}
+
+.value-card p {
+  font-size: 14px;
+  font-weight: 600;
+  color: #c4b5fd;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── SKILLS ── */
+.skills-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.skills-box h3 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.skills-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-tag {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid;
+  transition: transform 0.15s;
+  cursor: default;
+}
+
+.skill-tag:hover { transform: translateY(-1px); }
+
+.sk-purple { color: #c4b5fd; background: rgba(167,139,250,0.1); border-color: rgba(167,139,250,0.25); }
+.sk-blue   { color: #93c5fd; background: rgba(147,197,253,0.1); border-color: rgba(147,197,253,0.25); }
+.sk-cyan   { color: #67e8f9; background: rgba(103,232,249,0.1); border-color: rgba(103,232,249,0.25); }
+.sk-pink   { color: #f9a8d4; background: rgba(249,168,212,0.1); border-color: rgba(249,168,212,0.25); }
+.sk-green  { color: #86efac; background: rgba(134,239,172,0.1); border-color: rgba(134,239,172,0.25); }
+
+/* ── ARTIFACTS ── */
+.artifacts-section {
+  position: relative;
+  z-index: 1;
+  padding: 60px 24px 100px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.artifacts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-top: 44px;
+}
+
+.artifact-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.artifact-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.02));
+  pointer-events: none;
+}
+
+.artifact-card:hover {
+  border-color: rgba(255,255,255,0.16);
+  transform: translateY(-4px);
+  box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+}
+
+.card-top-bar { height: 3px; }
+
+.card-inner { padding: 24px; flex: 1; }
+
+.card-icon-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.card-emoji {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.card-num {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: rgba(255,255,255,0.06);
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+.card-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.card-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 18px;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.c-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid;
+}
+
+.tag-1 { color: #93c5fd; border-color: rgba(147,197,253,0.3); background: rgba(147,197,253,0.08); }
+.tag-2 { color: #c4b5fd; border-color: rgba(196,181,253,0.3); background: rgba(196,181,253,0.08); }
+.tag-3 { color: #86efac; border-color: rgba(134,239,172,0.3); background: rgba(134,239,172,0.08); }
+.tag-4 { color: #f9a8d4; border-color: rgba(249,168,212,0.3); background: rgba(249,168,212,0.08); }
+.tag-5 { color: #67e8f9; border-color: rgba(103,232,249,0.3); background: rgba(103,232,249,0.08); }
+
+.card-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.c-stat {
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  padding: 9px 12px;
+}
+
+.c-stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 2px; }
+.c-stat-value { font-size: 12px; font-weight: 600; color: var(--text); }
+
+.card-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  transition: background 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.card-btn:hover { background: rgba(255,255,255,0.05); }
+
+.card-btn .arrow {
+  font-size: 16px;
+  transition: transform 0.2s;
+}
+
+.artifact-card:hover .arrow { transform: translateX(4px); }
+
+/* ── FOOTER ── */
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 32px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+footer span {
+  background: linear-gradient(90deg, var(--purple), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
+}
+
+/* ── DIVIDER ── */
+.divider {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.divider hr { border: none; border-top: 1px solid var(--border); }
+
+@media (max-width: 480px) {
+  nav { padding: 14px 20px; }
+  .nav-links { display: none; }
+}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Professional Portfolio</h1>
-  <p>AIML-501 · Indiana Wesleyan University</p>
-</header>
+<!-- BACKGROUND -->
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
 
-<!-- BIO -->
-<div class="bio-section">
-  <h2>Professional Bio</h2>
-  <p>
-    I am an AI/ML student at Indiana Wesleyan University building foundational skills in machine learning, neural networks, and data science. My goal is to apply these technologies to solve real-world problems and contribute meaningfully to the field of artificial intelligence.
-  </p>
-  <div class="value-prop">
-    💡 Value Proposition: I bring curiosity, critical thinking, and a commitment to continuous learning to every AI/ML challenge I tackle.
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">AIML-501 Portfolio</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#artifacts">Artifacts</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><span></span> AIML-501 · Indiana Wesleyan University</div>
+  <h1>
+    <span class="name-line">Professional</span>
+    <span class="role-line">AI/ML Portfolio</span>
+  </h1>
+  <p class="hero-sub">A curated collection of machine learning artifacts demonstrating applied knowledge across algorithms, neural networks, and generative AI.</p>
+  <a href="#artifacts" class="hero-cta">View Artifacts <span>↓</span></a>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
   </div>
-</div>
+</section>
+
+<!-- ABOUT -->
+<section class="about-section" id="about">
+  <div class="section-eyebrow">About Me</div>
+  <h2 class="section-heading">Turning AI Complexity<br>Into Clear Insight</h2>
+
+  <div class="about-grid">
+    <div class="about-text">
+      <p>I am an AI/ML student at Indiana Wesleyan University passionate about machine learning, neural networks, and generative AI systems. My work focuses on making complex AI concepts accessible through clear visual communication and practical application.</p>
+      <p>I bring curiosity, analytical thinking, and a commitment to continuous learning to every challenge — translating technical AI research into actionable knowledge that drives informed, responsible decision-making.</p>
+      <div class="value-card">
+        <p>💡 Value Proposition — Bridging deep technical AI knowledge with visual storytelling to make machine learning accessible to any audience.</p>
+      </div>
+    </div>
+
+    <div class="skills-box">
+      <h3>Skills &amp; Technologies</h3>
+      <div class="skills-wrap">
+        <span class="skill-tag sk-purple">Machine Learning</span>
+        <span class="skill-tag sk-blue">Deep Learning</span>
+        <span class="skill-tag sk-cyan">Neural Networks</span>
+        <span class="skill-tag sk-pink">Generative AI</span>
+        <span class="skill-tag sk-green">NLP</span>
+        <span class="skill-tag sk-purple">Python</span>
+        <span class="skill-tag sk-blue">TensorFlow</span>
+        <span class="skill-tag sk-cyan">Data Visualization</span>
+        <span class="skill-tag sk-pink">LLMs</span>
+        <span class="skill-tag sk-green">Computer Vision</span>
+        <span class="skill-tag sk-purple">Supervised Learning</span>
+        <span class="skill-tag sk-blue">Unsupervised Learning</span>
+        <span class="skill-tag sk-cyan">RLHF / Alignment</span>
+        <span class="skill-tag sk-pink">Model Evaluation</span>
+        <span class="skill-tag sk-green">Prompt Engineering</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><hr></div>
 
 <!-- ARTIFACTS -->
-<div class="section-title">
-  <h2>Portfolio Artifacts</h2>
-  <p>Course deliverables demonstrating applied AI/ML knowledge</p>
-</div>
+<section class="artifacts-section" id="artifacts">
+  <div class="section-eyebrow">Portfolio Artifacts</div>
+  <h2 class="section-heading">Course Deliverables</h2>
 
-<div class="artifacts">
+  <div class="artifacts-grid">
 
-  <!-- ARTIFACT 1 -->
-  <div class="artifact-card">
-    <div class="artifact-stripe" style="background:#2b6cb0"></div>
-    <div class="artifact-body">
-      <div class="artifact-num">Artifact 01</div>
-      <div class="artifact-title">ML Algorithm Visual Framework</div>
-      <p class="artifact-desc">
-        A visual reference infographic covering 10 machine learning algorithms, classified by type (supervised, unsupervised, generative), application domain, and real-world use cases. Includes an application domain matrix and relationship diagram.
-      </p>
-      <div class="meta-row">
-        <span class="meta-pill pill-blue">Supervised Learning</span>
-        <span class="meta-pill pill-purple">Unsupervised</span>
-        <span class="meta-pill pill-green">Generative AI</span>
-      </div>
-      <div class="details-grid">
-        <div class="detail-item">
-          <div class="detail-label">Objective</div>
-          <div class="detail-value">Classify & visualize 10 ML algorithms</div>
+    <!-- ARTIFACT 1 -->
+    <div class="artifact-card">
+      <div class="card-top-bar" style="background: linear-gradient(90deg, #3b82f6, #06b6d4)"></div>
+      <div class="card-inner">
+        <div class="card-icon-row">
+          <span class="card-emoji">🧠</span>
+          <span class="card-num">Artifact 01</span>
         </div>
-        <div class="detail-item">
-          <div class="detail-label">Tools Used</div>
-          <div class="detail-value">HTML, CSS, SVG</div>
+        <div class="card-title">ML Algorithm Visual Framework</div>
+        <p class="card-desc">A visual infographic mapping 10 machine learning algorithms by type, application domain, and real-world use cases — with a relationship diagram and domain matrix.</p>
+        <div class="card-tags">
+          <span class="c-tag tag-1">Supervised</span>
+          <span class="c-tag tag-2">Unsupervised</span>
+          <span class="c-tag tag-3">Generative</span>
+          <span class="c-tag tag-5">Domain Matrix</span>
         </div>
-        <div class="detail-item">
-          <div class="detail-label">Algorithms</div>
-          <div class="detail-value">Linear Reg, SVM, CNN, Transformer + more</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">Domain Coverage</div>
-          <div class="detail-value">Tabular, CV, NLP, Gen AI</div>
+        <div class="card-stats">
+          <div class="c-stat">
+            <div class="c-stat-label">Algorithms</div>
+            <div class="c-stat-value">10 covered</div>
+          </div>
+          <div class="c-stat">
+            <div class="c-stat-label">Domains</div>
+            <div class="c-stat-value">Tabular, CV, NLP, Gen AI</div>
+          </div>
         </div>
       </div>
+      <a class="card-btn" href="ml_algorithms_infographic.html" target="_blank">
+        Open Artifact 1 <span class="arrow">→</span>
+      </a>
     </div>
-    <a class="view-btn btn-blue" href="ml_algorithms_infographic.html" target="_blank">View Artifact 1 →</a>
-  </div>
 
-  <!-- ARTIFACT 2 -->
-  <div class="artifact-card">
-    <div class="artifact-stripe" style="background:#6b46c1"></div>
-    <div class="artifact-body">
-      <div class="artifact-num">Artifact 02</div>
-      <div class="artifact-title">Neural Network Visual Presentation</div>
-      <p class="artifact-desc">
-        An interactive visual presentation of neural network architecture and its six core components: layers, neurons, weights, activation functions, loss functions, and optimization algorithms. Includes an architecture diagram and summary of key insights from TF Playground.
-      </p>
-      <div class="meta-row">
-        <span class="meta-pill pill-blue">Deep Learning</span>
-        <span class="meta-pill pill-purple">Neural Networks</span>
-        <span class="meta-pill pill-green">TF Playground</span>
-      </div>
-      <div class="details-grid">
-        <div class="detail-item">
-          <div class="detail-label">Objective</div>
-          <div class="detail-value">Visualize NN architecture & components</div>
+    <!-- ARTIFACT 2 -->
+    <div class="artifact-card">
+      <div class="card-top-bar" style="background: linear-gradient(90deg, #8b5cf6, #ec4899)"></div>
+      <div class="card-inner">
+        <div class="card-icon-row">
+          <span class="card-emoji">⚡</span>
+          <span class="card-num">Artifact 02</span>
         </div>
-        <div class="detail-item">
-          <div class="detail-label">Tools Used</div>
-          <div class="detail-value">HTML, CSS, TF Playground</div>
+        <div class="card-title">Neural Network Visual Presentation</div>
+        <p class="card-desc">An architecture diagram and deep-dive into the six core neural network components — with insights from hands-on TensorFlow Playground experiments.</p>
+        <div class="card-tags">
+          <span class="c-tag tag-2">Deep Learning</span>
+          <span class="c-tag tag-1">Neural Networks</span>
+          <span class="c-tag tag-3">TF Playground</span>
+          <span class="c-tag tag-4">Backpropagation</span>
         </div>
-        <div class="detail-item">
-          <div class="detail-label">Components</div>
-          <div class="detail-value">Layers, Neurons, Weights, Activations</div>
-        </div>
-        <div class="detail-item">
-          <div class="detail-label">Key Concept</div>
-          <div class="detail-value">Backprop, loss, optimization</div>
+        <div class="card-stats">
+          <div class="c-stat">
+            <div class="c-stat-label">Components</div>
+            <div class="c-stat-value">6 core elements</div>
+          </div>
+          <div class="c-stat">
+            <div class="c-stat-label">Key Concept</div>
+            <div class="c-stat-value">Backprop & optimization</div>
+          </div>
         </div>
       </div>
+      <a class="card-btn" href="neural_network_visual.html" target="_blank">
+        Open Artifact 2 <span class="arrow">→</span>
+      </a>
     </div>
-    <a class="view-btn btn-purple" href="neural_network_visual.html" target="_blank">View Artifact 2 →</a>
-  </div>
 
-</div>
+    <!-- ARTIFACT 3 -->
+    <div class="artifact-card">
+      <div class="card-top-bar" style="background: linear-gradient(90deg, #ec4899, #f97316)"></div>
+      <div class="card-inner">
+        <div class="card-icon-row">
+          <span class="card-emoji">🚀</span>
+          <span class="card-num">Artifact 03</span>
+        </div>
+        <div class="card-title">Generative AI LLM Training Guide</div>
+        <p class="card-desc">The full LLM training pipeline from data to deployment, with resource breakdowns and side-by-side cost comparisons of GPT-4, Claude, LLaMA 3, and Gemini Ultra.</p>
+        <div class="card-tags">
+          <span class="c-tag tag-4">Generative AI</span>
+          <span class="c-tag tag-5">LLMs</span>
+          <span class="c-tag tag-3">Training Pipeline</span>
+          <span class="c-tag tag-1">Cost Analysis</span>
+        </div>
+        <div class="card-stats">
+          <div class="c-stat">
+            <div class="c-stat-label">Models</div>
+            <div class="c-stat-value">GPT-4, Claude, LLaMA, Gemini</div>
+          </div>
+          <div class="c-stat">
+            <div class="c-stat-label">Pipeline Steps</div>
+            <div class="c-stat-value">7 stages</div>
+          </div>
+        </div>
+      </div>
+      <a class="card-btn" href="llm_training_infographic.html" target="_blank">
+        Open Artifact 3 <span class="arrow">→</span>
+      </a>
+    </div>
+
+  </div>
+</section>
 
 <footer>
-  AIML-501 · Indiana Wesleyan University · Professional Portfolio · malle934
+  <p>AIML-501 &nbsp;·&nbsp; Indiana Wesleyan University &nbsp;·&nbsp; <span>malle934</span></p>
 </footer>
 
 </body>
