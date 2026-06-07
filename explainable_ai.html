@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Explainable AI — Artifact 04</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0a0f2e; --purple: #8b5cf6; --blue: #3b82f6; --cyan: #06b6d4;
+  --pink: #ec4899; --orange: #f97316; --green: #10b981; --yellow: #f59e0b;
+  --text: #e2e8f0; --muted: #94a3b8; --card: rgba(255,255,255,0.04); --border: rgba(255,255,255,0.08);
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--navy); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; }
+.blob { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
+.blob-1 { width: 600px; height: 600px; background: rgba(16,185,129,0.12); top: -200px; left: -100px; }
+.blob-2 { width: 500px; height: 500px; background: rgba(245,158,11,0.08); bottom: -100px; right: -100px; }
+.blob-3 { width: 400px; height: 400px; background: rgba(139,92,246,0.06); top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 40px; display: flex; align-items: center; justify-content: space-between; background: rgba(10,15,46,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+.nav-logo { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: linear-gradient(90deg, var(--green), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.nav-back { font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.nav-back:hover { color: var(--text); }
+
+/* HERO */
+.hero { position: relative; z-index: 1; text-align: center; padding: 120px 24px 60px; }
+.hero-badge { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(16,185,129,0.4); background: rgba(16,185,129,0.1); border-radius: 100px; padding: 6px 16px; font-size: 12px; font-weight: 600; color: #6ee7b7; margin-bottom: 24px; }
+.hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(36px, 6vw, 64px); font-weight: 700; line-height: 1.1; margin-bottom: 16px; }
+.hero h1 .l1 { display: block; color: var(--text); }
+.hero h1 .l2 { display: block; font-style: italic; background: linear-gradient(135deg, var(--green), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero-sub { font-size: 16px; color: var(--muted); max-width: 580px; margin: 0 auto; line-height: 1.7; }
+
+/* XAI DEFINITION BANNER */
+.xai-banner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px 20px; }
+.xai-def { background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(6,182,212,0.08)); border: 1px solid rgba(16,185,129,0.25); border-radius: 16px; padding: 32px 36px; display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; }
+.xai-icon { font-size: 56px; line-height: 1; }
+.xai-def h2 { font-family: 'Playfair Display', serif; font-size: clamp(20px, 2.5vw, 28px); font-weight: 700; color: var(--text); margin-bottom: 10px; }
+.xai-def p { font-size: 14px; color: var(--muted); line-height: 1.75; }
+.xai-sectors { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.sector-tag { font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; border: 1px solid; }
+.st-1 { color: #6ee7b7; border-color: rgba(110,231,183,0.3); background: rgba(110,231,183,0.08); }
+.st-2 { color: #67e8f9; border-color: rgba(103,232,249,0.3); background: rgba(103,232,249,0.08); }
+.st-3 { color: #fde68a; border-color: rgba(253,230,138,0.3); background: rgba(253,230,138,0.08); }
+.st-4 { color: #f9a8d4; border-color: rgba(249,168,212,0.3); background: rgba(249,168,212,0.08); }
+.st-5 { color: #c4b5fd; border-color: rgba(196,181,253,0.3); background: rgba(196,181,253,0.08); }
+@media(max-width:600px){ .xai-def { grid-template-columns: 1fr; } .xai-icon { display: none; } }
+
+/* SECTION */
+.section { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 20px 24px 60px; }
+.sec-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px; }
+.sec-title { font-family: 'Playfair Display', serif; font-size: clamp(22px, 3vw, 32px); font-weight: 700; margin-bottom: 6px; color: var(--text); }
+.sec-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
+
+/* IMPORTANCE GRID */
+.importance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.imp-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; transition: border-color 0.2s, transform 0.2s; }
+.imp-card:hover { border-color: rgba(255,255,255,0.16); transform: translateY(-2px); }
+.imp-icon { font-size: 28px; margin-bottom: 10px; }
+.imp-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.imp-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+/* CHALLENGE CARDS */
+.challenge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 18px; }
+.chal-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s; }
+.chal-card:hover { border-color: rgba(255,255,255,0.16); transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+.chal-stripe { height: 3px; }
+.chal-body { padding: 20px 22px; }
+.chal-icon-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.chal-emoji { font-size: 28px; }
+.chal-num { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); background: rgba(255,255,255,0.06); padding: 3px 9px; border-radius: 100px; }
+.chal-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.chal-desc { font-size: 13px; color: var(--muted); line-height: 1.65; margin-bottom: 12px; }
+.chal-impact { border-left: 3px solid; border-radius: 0 8px 8px 0; background: rgba(255,255,255,0.04); padding: 8px 12px; font-size: 12px; color: var(--muted); }
+.chal-impact strong { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.25); margin-bottom: 2px; }
+
+/* TECHNIQUES */
+.tech-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 18px; }
+.tech-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s; }
+.tech-card:hover { border-color: rgba(255,255,255,0.16); transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+.tech-stripe { height: 3px; }
+.tech-body { padding: 20px 22px; }
+.tech-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.tech-name { font-size: 15px; font-weight: 700; color: var(--text); flex: 1; }
+.tech-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; flex-shrink: 0; border: 1px solid; }
+.tech-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+.tech-used { font-size: 11px; color: var(--muted); display: flex; gap: 6px; flex-wrap: wrap; }
+.used-by { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--muted); }
+
+/* METRICS TABLE */
+.metrics-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 560px; }
+thead th { background: rgba(255,255,255,0.04); padding: 12px 16px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); border-bottom: 1px solid var(--border); text-align: left; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+tbody tr:hover { background: rgba(255,255,255,0.03); }
+tbody tr:last-child { border-bottom: none; }
+tbody td { padding: 12px 16px; color: var(--muted); vertical-align: top; }
+tbody td:first-child { font-weight: 700; color: var(--text); }
+.metric-cat { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 2px 8px; border-radius: 5px; border: 1px solid; margin-bottom: 4px; }
+
+/* ORG CARDS */
+.org-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.org-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s; }
+.org-card:hover { border-color: rgba(255,255,255,0.16); transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+.org-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.org-emoji { font-size: 28px; }
+.org-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.org-model { font-size: 11px; color: var(--muted); font-weight: 500; }
+.org-body { padding: 14px 20px; }
+.org-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+.org-item:last-child { border-bottom: none; }
+.org-item::before { content: '→'; color: var(--green); flex-shrink: 0; font-weight: 700; }
+
+/* EXPLANATORY DOC */
+.doc-box { background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(6,182,212,0.06)); border: 1px solid rgba(16,185,129,0.2); border-radius: 16px; padding: 36px; }
+.doc-box h2 { font-family: 'Playfair Display', serif; font-size: clamp(20px, 2.5vw, 28px); font-weight: 700; color: var(--text); margin-bottom: 20px; }
+.doc-box p { font-size: 14px; color: var(--muted); line-height: 1.8; margin-bottom: 16px; }
+.doc-box p:last-child { margin-bottom: 0; }
+
+footer { position: relative; z-index: 1; text-align: center; padding: 28px 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+footer span { background: linear-gradient(90deg, var(--green), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<nav>
+  <div class="nav-logo">Artifact 04 — Explainable AI</div>
+  <a href="index.html" class="nav-back">← Portfolio</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🔍 Artifact 04 · AIML-501</div>
+  <h1><span class="l1">Explainable AI</span><span class="l2">Transparency & Trust</span></h1>
+  <p class="hero-sub">Making AI decisions understandable — challenges, techniques, validation metrics, and how leading organizations are building trustworthy AI systems.</p>
+</div>
+
+<!-- XAI DEFINITION -->
+<div class="xai-banner">
+  <div class="xai-def">
+    <div class="xai-icon">🧠</div>
+    <div>
+      <h2>What Is Explainable AI (XAI)?</h2>
+      <p>Explainable AI refers to methods and techniques that make the outputs and internal reasoning of artificial intelligence systems understandable to humans. As AI models like GPT-4, Claude, Gemini, and LLaMA are deployed in high-stakes domains, the ability to explain <em>why</em> a model made a specific decision is no longer optional — it is a critical requirement for safety, fairness, and regulatory compliance.</p>
+      <div class="xai-sectors">
+        <span class="sector-tag st-1">🏥 Healthcare</span>
+        <span class="sector-tag st-2">🏦 Finance</span>
+        <span class="sector-tag st-3">⚖️ Legal</span>
+        <span class="sector-tag st-4">🚗 Autonomous Vehicles</span>
+        <span class="sector-tag st-5">🛡️ Cybersecurity</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHY IT MATTERS -->
+<div class="section">
+  <div class="sec-eyebrow" style="color:var(--green)">01 — Importance</div>
+  <div class="sec-title">Why XAI Matters</div>
+  <div class="sec-sub">Transparency is not just a feature — it is the foundation of responsible AI deployment</div>
+
+  <div class="importance-grid">
+    <div class="imp-card">
+      <div class="imp-icon">🤝</div>
+      <div class="imp-title">Trust & Adoption</div>
+      <p class="imp-desc">Users and organizations are more likely to adopt AI systems they can understand and verify. Black-box models create hesitation in critical sectors.</p>
+    </div>
+    <div class="imp-card">
+      <div class="imp-icon">⚖️</div>
+      <div class="imp-title">Regulatory Compliance</div>
+      <p class="imp-desc">GDPR, the EU AI Act, and sector-specific regulations increasingly require AI systems to provide human-understandable explanations for automated decisions.</p>
+    </div>
+    <div class="imp-card">
+      <div class="imp-icon">🎯</div>
+      <div class="imp-title">Bias Detection</div>
+      <p class="imp-desc">Explainability tools help uncover hidden biases in model outputs — essential for ensuring fairness across race, gender, age, and socioeconomic groups.</p>
+    </div>
+    <div class="imp-card">
+      <div class="imp-icon">🔧</div>
+      <div class="imp-title">Debugging & Improvement</div>
+      <p class="imp-desc">Understanding why a model fails allows engineers to diagnose and fix problems — reducing errors and improving performance over time.</p>
+    </div>
+    <div class="imp-card">
+      <div class="imp-icon">🏥</div>
+      <div class="imp-title">Safety in High Stakes</div>
+      <p class="imp-desc">In healthcare, finance, and law, unexplained AI decisions can cause real harm. XAI ensures accountability when outcomes affect human lives.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CHALLENGES -->
+<div class="section" style="padding-top:0">
+  <div class="sec-eyebrow" style="color:var(--orange)">02 — Challenges</div>
+  <div class="sec-title">Key Obstacles in Explainability</div>
+  <div class="sec-sub">Why making AI transparent is genuinely difficult</div>
+
+  <div class="challenge-grid">
+
+    <div class="chal-card">
+      <div class="chal-stripe" style="background:linear-gradient(90deg,#f97316,#fcd34d)"></div>
+      <div class="chal-body">
+        <div class="chal-icon-row"><span class="chal-emoji">📦</span><span class="chal-num">Challenge 01</span></div>
+        <div class="chal-title">Opacity & Black-Box Complexity</div>
+        <p class="chal-desc">Modern LLMs operate as black boxes where no single component fully explains the output. Decisions emerge from billions of non-linear parameter interactions that resist straightforward interpretation — even to their creators.</p>
+        <div class="chal-impact" style="border-color:#f97316"><strong>Impact</strong>Impossible to trace a specific output back to a specific cause in the training data or model weights.</div>
+      </div>
+    </div>
+
+    <div class="chal-card">
+      <div class="chal-stripe" style="background:linear-gradient(90deg,#ef4444,#f97316)"></div>
+      <div class="chal-body">
+        <div class="chal-icon-row"><span class="chal-emoji">🎭</span><span class="chal-num">Challenge 02</span></div>
+        <div class="chal-title">Post-Hoc Explanation Gaps</div>
+        <p class="chal-desc">Explanations are often generated after the decision and may not accurately reflect the model's true internal reasoning. This gap between what the model "says it did" and what it actually did can erode trust significantly.</p>
+        <div class="chal-impact" style="border-color:#ef4444"><strong>Impact</strong>Users may rely on misleading explanations, creating false confidence in unreliable AI decisions.</div>
+      </div>
+    </div>
+
+    <div class="chal-card">
+      <div class="chal-stripe" style="background:linear-gradient(90deg,#ec4899,#8b5cf6)"></div>
+      <div class="chal-body">
+        <div class="chal-icon-row"><span class="chal-emoji">⚡</span><span class="chal-num">Challenge 03</span></div>
+        <div class="chal-title">Accuracy vs. Interpretability Tradeoff</div>
+        <p class="chal-desc">Simpler, interpretable models (linear regression, decision trees) are easier to explain but less powerful. High-accuracy deep learning models are powerful but opaque. Choosing between them is a fundamental tension in AI design.</p>
+        <div class="chal-impact" style="border-color:#ec4899"><strong>Impact</strong>Organizations often deploy powerful black-box models and add explanations as an afterthought — reducing reliability.</div>
+      </div>
+    </div>
+
+    <div class="chal-card">
+      <div class="chal-stripe" style="background:linear-gradient(90deg,#8b5cf6,#3b82f6)"></div>
+      <div class="chal-body">
+        <div class="chal-icon-row"><span class="chal-emoji">🗃️</span><span class="chal-num">Challenge 04</span></div>
+        <div class="chal-title">Data Quality & Bias</div>
+        <p class="chal-desc">Models trained on vast datasets inherit imperfections — biases, noise, and underrepresented groups. When biased outputs occur, explainability tools must identify whether the source is the data, the architecture, or the training process.</p>
+        <div class="chal-impact" style="border-color:#8b5cf6"><strong>Impact</strong>Biased AI in hiring, lending, and healthcare can cause systematic discrimination at massive scale.</div>
+      </div>
+    </div>
+
+    <div class="chal-card">
+      <div class="chal-stripe" style="background:linear-gradient(90deg,#3b82f6,#06b6d4)"></div>
+      <div class="chal-body">
+        <div class="chal-icon-row"><span class="chal-emoji">📜</span><span class="chal-num">Challenge 05</span></div>
+        <div class="chal-title">Regulatory & Legal Uncertainty</div>
+        <p class="chal-desc">Regulatory frameworks for AI explainability are still evolving. The EU AI Act, GDPR's "right to explanation," and US executive orders create overlapping and sometimes conflicting requirements that are difficult to comply with simultaneously.</p>
+        <div class="chal-impact" style="border-color:#3b82f6"><strong>Impact</strong>Organizations face legal liability and compliance costs without clear, unified standards for what "explainable" means.</div>
+      </div>
+    </div>
+
+    <div class="chal-card">
+      <div class="chal-stripe" style="background:linear-gradient(90deg,#06b6d4,#10b981)"></div>
+      <div class="chal-body">
+        <div class="chal-icon-row"><span class="chal-emoji">🌐</span><span class="chal-num">Challenge 06</span></div>
+        <div class="chal-title">Scale & Dynamic Behavior</div>
+        <p class="chal-desc">LLMs with hundreds of billions of parameters change behavior dynamically based on context, prompt phrasing, and conversation history. Static explanations fail to capture this fluid, context-dependent reasoning.</p>
+        <div class="chal-impact" style="border-color:#06b6d4"><strong>Impact</strong>The same model can produce contradictory outputs for subtly different inputs — making consistent explanation nearly impossible.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CURRENT TECHNIQUES -->
+<div class="section" style="padding-top:0">
+  <div class="sec-eyebrow" style="color:var(--cyan)">03 — Current Solutions</div>
+  <div class="sec-title">XAI Techniques & Approaches</div>
+  <div class="sec-sub">Methods being used to open the black box</div>
+
+  <div class="tech-grid">
+
+    <div class="tech-card">
+      <div class="tech-stripe" style="background:linear-gradient(90deg,#10b981,#06b6d4)"></div>
+      <div class="tech-body">
+        <div class="tech-top">
+          <span class="tech-name">Chain-of-Thought Prompting</span>
+          <span class="tech-badge" style="color:#6ee7b7;border-color:rgba(110,231,183,0.3);background:rgba(110,231,183,0.08)">Prompting</span>
+        </div>
+        <p class="tech-desc">Encourages models to "think aloud" by generating step-by-step reasoning before giving a final answer. Makes internal logic visible and allows users to identify reasoning errors before acting on outputs.</p>
+        <div class="tech-used">
+          <span class="used-by">GPT-4</span><span class="used-by">Claude</span><span class="used-by">Gemini</span><span class="used-by">LLaMA</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tech-card">
+      <div class="tech-stripe" style="background:linear-gradient(90deg,#3b82f6,#8b5cf6)"></div>
+      <div class="tech-body">
+        <div class="tech-top">
+          <span class="tech-name">Attention Visualization</span>
+          <span class="tech-badge" style="color:#93c5fd;border-color:rgba(147,197,253,0.3);background:rgba(147,197,253,0.08)">Visualization</span>
+        </div>
+        <p class="tech-desc">Tools that map which input tokens the model weighted most heavily when generating a response. Provides insight into which words or concepts drove the output — useful for debugging and auditing model behavior.</p>
+        <div class="tech-used">
+          <span class="used-by">BertViz</span><span class="used-by">Transformer Lens</span><span class="used-by">Ecco</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tech-card">
+      <div class="tech-stripe" style="background:linear-gradient(90deg,#f97316,#fcd34d)"></div>
+      <div class="tech-body">
+        <div class="tech-top">
+          <span class="tech-name">SHAP & LIME</span>
+          <span class="tech-badge" style="color:#fdba74;border-color:rgba(253,186,116,0.3);background:rgba(253,186,116,0.08)">Feature Attribution</span>
+        </div>
+        <p class="tech-desc">SHAP (SHapley Additive exPlanations) assigns each feature a contribution score for a prediction. LIME (Local Interpretable Model-Agnostic Explanations) builds a simpler local model around a specific prediction to explain it.</p>
+        <div class="tech-used">
+          <span class="used-by">SHAP library</span><span class="used-by">LIME library</span><span class="used-by">Tabular AI</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tech-card">
+      <div class="tech-stripe" style="background:linear-gradient(90deg,#ec4899,#f97316)"></div>
+      <div class="tech-body">
+        <div class="tech-top">
+          <span class="tech-name">Constitutional AI (CAI)</span>
+          <span class="tech-badge" style="color:#f9a8d4;border-color:rgba(249,168,212,0.3);background:rgba(249,168,212,0.08)">Alignment</span>
+        </div>
+        <p class="tech-desc">Anthropic's approach trains Claude to self-critique and revise responses against a set of written principles. Makes the alignment process itself transparent and auditable — the model's behavior is governed by explicit, human-readable rules.</p>
+        <div class="tech-used">
+          <span class="used-by">Claude (Anthropic)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tech-card">
+      <div class="tech-stripe" style="background:linear-gradient(90deg,#8b5cf6,#ec4899)"></div>
+      <div class="tech-body">
+        <div class="tech-top">
+          <span class="tech-name">Probing Classifiers</span>
+          <span class="tech-badge" style="color:#c4b5fd;border-color:rgba(196,181,253,0.3);background:rgba(196,181,253,0.08)">Interpretability</span>
+        </div>
+        <p class="tech-desc">Small classifiers trained on intermediate model representations to test what information is encoded at each layer. Reveals whether models internally represent concepts like syntax, sentiment, or factual knowledge at specific depths.</p>
+        <div class="tech-used">
+          <span class="used-by">Research labs</span><span class="used-by">Mechanistic Interp.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tech-card">
+      <div class="tech-stripe" style="background:linear-gradient(90deg,#06b6d4,#3b82f6)"></div>
+      <div class="tech-body">
+        <div class="tech-top">
+          <span class="tech-name">Retrieval-Augmented Generation</span>
+          <span class="tech-badge" style="color:#67e8f9;border-color:rgba(103,232,249,0.3);background:rgba(103,232,249,0.08)">Architecture</span>
+        </div>
+        <p class="tech-desc">RAG grounds model outputs in retrieved documents, making it possible to cite specific sources. Users can verify the factual basis of responses — dramatically improving transparency compared to purely parametric generation.</p>
+        <div class="tech-used">
+          <span class="used-by">GPT-4o</span><span class="used-by">Gemini</span><span class="used-by">Bing AI</span><span class="used-by">Claude</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- VALIDATION & METRICS -->
+<div class="section" style="padding-top:0">
+  <div class="sec-eyebrow" style="color:var(--yellow)">04 — Validation & Metrics</div>
+  <div class="sec-title">Measuring Reliability & Trust</div>
+  <div class="sec-sub">How performance metrics assess model accountability</div>
+
+  <div class="metrics-box" style="overflow-x:auto">
+    <table>
+      <thead>
+        <tr>
+          <th style="min-width:160px">Metric / Technique</th>
+          <th>Category</th>
+          <th>What It Measures</th>
+          <th>Why It Matters</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Accuracy / F1 Score</td>
+          <td><span class="metric-cat" style="color:#6ee7b7;border-color:rgba(110,231,183,0.3);background:rgba(110,231,183,0.08)">Performance</span></td>
+          <td>Correct predictions out of total predictions; balance between precision and recall</td>
+          <td>Baseline measure of whether the model is doing its job correctly</td>
+        </tr>
+        <tr>
+          <td>Calibration</td>
+          <td><span class="metric-cat" style="color:#93c5fd;border-color:rgba(147,197,253,0.3);background:rgba(147,197,253,0.08)">Reliability</span></td>
+          <td>Whether a model's confidence scores match actual outcome probabilities</td>
+          <td>A model that says "90% confident" should be right ~90% of the time</td>
+        </tr>
+        <tr>
+          <td>Fairness Metrics</td>
+          <td><span class="metric-cat" style="color:#f9a8d4;border-color:rgba(249,168,212,0.3);background:rgba(249,168,212,0.08)">Bias</span></td>
+          <td>Demographic parity, equalized odds, disparate impact across subgroups</td>
+          <td>Ensures model does not systematically disadvantage protected groups</td>
+        </tr>
+        <tr>
+          <td>Red-Teaming</td>
+          <td><span class="metric-cat" style="color:#fca5a5;border-color:rgba(252,165,165,0.3);background:rgba(252,165,165,0.08)">Safety</span></td>
+          <td>Adversarial testing to find harmful, biased, or manipulable outputs</td>
+          <td>Identifies failure modes before deployment to real users</td>
+        </tr>
+        <tr>
+          <td>Perplexity</td>
+          <td><span class="metric-cat" style="color:#c4b5fd;border-color:rgba(196,181,253,0.3);background:rgba(196,181,253,0.08)">Language</span></td>
+          <td>How well a language model predicts a test corpus (lower = better)</td>
+          <td>Measures fluency and coherence of generated text</td>
+        </tr>
+        <tr>
+          <td>Hallucination Rate</td>
+          <td><span class="metric-cat" style="color:#fdba74;border-color:rgba(253,186,116,0.3);background:rgba(253,186,116,0.08)">Factuality</span></td>
+          <td>Frequency with which a model generates plausible but false statements</td>
+          <td>Critical for trust — users must know when to verify AI outputs</td>
+        </tr>
+        <tr>
+          <td>Human Evaluation</td>
+          <td><span class="metric-cat" style="color:#67e8f9;border-color:rgba(103,232,249,0.3);background:rgba(103,232,249,0.08)">Quality</span></td>
+          <td>Expert human raters assess helpfulness, harmlessness, and honesty</td>
+          <td>Captures nuanced quality dimensions that automated metrics miss</td>
+        </tr>
+        <tr>
+          <td>MMLU / BIG-Bench</td>
+          <td><span class="metric-cat" style="color:#86efac;border-color:rgba(134,239,172,0.3);background:rgba(134,239,172,0.08)">Benchmark</span></td>
+          <td>Standardized tests across subjects (math, science, law, coding)</td>
+          <td>Enables fair comparison of capabilities across different models</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ORG EFFORTS -->
+<div class="section" style="padding-top:0">
+  <div class="sec-eyebrow" style="color:var(--purple)">05 — Industry Leaders</div>
+  <div class="sec-title">What Leading Organizations Are Doing</div>
+  <div class="sec-sub">Transparency efforts across the frontier AI landscape</div>
+
+  <div class="org-grid">
+    <div class="org-card">
+      <div class="org-head"><div class="org-emoji">🤖</div><div><div class="org-name">OpenAI</div><div class="org-model">GPT-4, GPT-4o</div></div></div>
+      <div class="org-body">
+        <div class="org-item">System cards published with each major release</div>
+        <div class="org-item">RLHF for alignment with human values</div>
+        <div class="org-item">Usage policies and content filtering layers</div>
+        <div class="org-item">Red-teaming before public deployment</div>
+        <div class="org-item">Model spec documentation (2024)</div>
+      </div>
+    </div>
+    <div class="org-card">
+      <div class="org-head"><div class="org-emoji">🧡</div><div><div class="org-name">Anthropic</div><div class="org-model">Claude 3 / Claude 3.5</div></div></div>
+      <div class="org-body">
+        <div class="org-item">Constitutional AI — explicit written principles</div>
+        <div class="org-item">Model cards and safety evaluations</div>
+        <div class="org-item">Mechanistic interpretability research</div>
+        <div class="org-item">Responsible scaling policy (RSP)</div>
+        <div class="org-item">Published AI safety research papers</div>
+      </div>
+    </div>
+    <div class="org-card">
+      <div class="org-head"><div class="org-emoji">💎</div><div><div class="org-name">Google DeepMind</div><div class="org-model">Gemini Ultra / Pro</div></div></div>
+      <div class="org-body">
+        <div class="org-item">Responsible AI practices framework</div>
+        <div class="org-item">RLHF + reinforcement from AI feedback</div>
+        <div class="org-item">Gemini model cards with eval details</div>
+        <div class="org-item">Uncertainty quantification research</div>
+        <div class="org-item">Safety benchmarks (HELM, BIG-Bench)</div>
+      </div>
+    </div>
+    <div class="org-card">
+      <div class="org-head"><div class="org-emoji">🦙</div><div><div class="org-name">Meta AI</div><div class="org-model">LLaMA 3 (Open Weights)</div></div></div>
+      <div class="org-body">
+        <div class="org-item">Open-weights release for community audit</div>
+        <div class="org-item">Responsible Use Guide for LLaMA</div>
+        <div class="org-item">Purple Llama safety toolkit</div>
+        <div class="org-item">CyberSec Eval for vulnerability testing</div>
+        <div class="org-item">Llama Guard content safety model</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPLANATORY DOCUMENT -->
+<div class="section" style="padding-top:0">
+  <div class="sec-eyebrow" style="color:var(--green)">06 — Explanatory Document</div>
+  <div class="sec-title">Summary & Design Rationale</div>
+  <div class="sec-sub" style="margin-bottom:20px">Key points, design choices, and relevance of XAI</div>
+
+  <div class="doc-box">
+    <h2>Summary of Key Points</h2>
+    <p>This artifact explores Explainable AI — one of the most pressing challenges in modern machine learning. As large language models like GPT-4, Claude, Gemini, and LLaMA are deployed in high-stakes domains including healthcare, finance, and law, the ability to explain their decisions has become a regulatory and ethical imperative. The infographic covers the full XAI landscape: from the fundamental definition and its importance across sectors, through six major explainability challenges, to six current techniques being used to address them, an eight-metric validation framework, and concrete transparency efforts by four leading AI organizations.</p>
+    <p>The visual design mirrors the broader portfolio — using a dark navy palette with color-coded sections to distinguish concepts at a glance. Green tones represent trustworthiness and importance; orange signals challenges and risks; cyan highlights solutions; yellow marks validation and metrics; and purple identifies industry efforts. Each section builds on the last, creating a logical flow from problem definition through current solutions to real-world accountability. This structure reflects the core argument: that explainability, validation, and transparency are not separate concerns but interdependent pillars of trustworthy AI.</p>
+  </div>
+</div>
+
+<footer><p>AIML-501 · Explainable AI — Transparency & Trust · <span>Artifact 04</span></p></footer>
+</body>
+</html>
