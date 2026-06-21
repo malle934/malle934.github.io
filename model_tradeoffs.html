@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pre-trained Model Trade-offs — Artifact 05</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0a0f2e; --purple: #8b5cf6; --blue: #3b82f6; --cyan: #06b6d4;
+  --pink: #ec4899; --orange: #f97316; --green: #10b981; --yellow: #f59e0b;
+  --red: #ef4444;
+  --text: #e2e8f0; --muted: #94a3b8; --card: rgba(255,255,255,0.04); --border: rgba(255,255,255,0.08);
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--navy); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; }
+.blob { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
+.blob-1 { width: 600px; height: 600px; background: rgba(59,130,246,0.12); top: -200px; left: -100px; }
+.blob-2 { width: 500px; height: 500px; background: rgba(139,92,246,0.10); bottom: -100px; right: -100px; }
+.blob-3 { width: 400px; height: 400px; background: rgba(16,185,129,0.06); top: 50%; left: 50%; transform: translate(-50%,-50%); }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 40px; display: flex; align-items: center; justify-content: space-between; background: rgba(10,15,46,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+.nav-logo { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: linear-gradient(90deg, var(--blue), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.nav-back { font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.nav-back:hover { color: var(--text); }
+.hero { position: relative; z-index: 1; text-align: center; padding: 120px 24px 60px; }
+.hero-badge { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(59,130,246,0.4); background: rgba(59,130,246,0.1); border-radius: 100px; padding: 6px 16px; font-size: 12px; font-weight: 600; color: #93c5fd; margin-bottom: 24px; }
+.hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(36px, 6vw, 64px); font-weight: 700; line-height: 1.1; margin-bottom: 16px; }
+.hero h1 .l1 { display: block; color: var(--text); }
+.hero h1 .l2 { display: block; font-style: italic; background: linear-gradient(135deg, var(--blue), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero-sub { font-size: 16px; color: var(--muted); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+.section { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 20px 24px 60px; }
+.sec-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px; }
+.sec-title { font-family: 'Playfair Display', serif; font-size: clamp(22px, 3vw, 32px); font-weight: 700; margin-bottom: 6px; color: var(--text); }
+.sec-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.7; }
+.intro-box { background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.08)); border: 1px solid rgba(59,130,246,0.2); border-radius: 16px; padding: 32px; margin-bottom: 48px; }
+.intro-box h2 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+.intro-box p { font-size: 14px; color: var(--muted); line-height: 1.8; margin-bottom: 12px; }
+.intro-box p:last-child { margin-bottom: 0; }
+.domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-bottom: 48px; }
+.domain-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; transition: border-color 0.2s, transform 0.2s; }
+.domain-card:hover { border-color: rgba(255,255,255,0.16); transform: translateY(-2px); }
+.domain-icon { font-size: 32px; margin-bottom: 10px; }
+.domain-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.domain-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.domain-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.matrix-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 48px; }
+.matrix-title { padding: 20px 24px 0; font-size: 14px; font-weight: 700; color: var(--text); }
+.matrix-sub { padding: 6px 24px 20px; font-size: 12px; color: var(--muted); }
+.matrix-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 900px; }
+thead th { background: rgba(255,255,255,0.06); padding: 12px 16px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); border-bottom: 1px solid var(--border); text-align: left; }
+thead th:first-child { min-width: 160px; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+tbody tr:hover { background: rgba(255,255,255,0.03); }
+tbody tr:last-child { border-bottom: none; }
+tbody td { padding: 14px 16px; vertical-align: top; color: var(--muted); }
+tbody td:first-child { font-weight: 700; color: var(--text); }
+.domain-badge { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 2px 8px; border-radius: 5px; border: 1px solid; margin-bottom: 4px; }
+.badge-nlp  { color: #93c5fd; border-color: rgba(147,197,253,0.3); background: rgba(147,197,253,0.08); }
+.badge-cv   { color: #fde68a; border-color: rgba(253,230,138,0.3); background: rgba(253,230,138,0.08); }
+.badge-tab  { color: #86efac; border-color: rgba(134,239,172,0.3); background: rgba(134,239,172,0.08); }
+.rating-wrap { display: flex; align-items: center; gap: 8px; }
+.rating-bar-track { flex: 1; max-width: 80px; background: rgba(255,255,255,0.08); border-radius: 4px; height: 6px; overflow: hidden; }
+.rating-bar-fill { height: 100%; border-radius: 4px; }
+.rating-label { font-size: 11px; font-weight: 600; color: var(--text); flex-shrink: 0; }
+.model-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; margin-bottom: 48px; }
+.model-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s; }
+.model-card:hover { border-color: rgba(255,255,255,0.16); transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+.model-stripe { height: 3px; }
+.model-body { padding: 20px 22px; }
+.model-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.model-info { flex: 1; }
+.model-name { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.model-org { font-size: 11px; color: var(--muted); font-weight: 500; }
+.model-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.stat-box { background: rgba(255,255,255,0.04); border-radius: 8px; padding: 10px 12px; }
+.stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 3px; }
+.stat-value { font-size: 13px; font-weight: 600; color: var(--text); }
+.pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pros, .cons { border-radius: 8px; padding: 10px 12px; }
+.pros { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); }
+.cons { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); }
+.pros-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #6ee7b7; margin-bottom: 6px; }
+.cons-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #fca5a5; margin-bottom: 6px; }
+.pros li, .cons li { font-size: 11px; color: var(--muted); line-height: 1.5; margin-left: 12px; margin-bottom: 2px; }
+.rec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 48px; }
+.rec-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; transition: border-color 0.2s, transform 0.2s; }
+.rec-card:hover { border-color: rgba(255,255,255,0.16); transform: translateY(-2px); }
+.rec-scenario { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.rec-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.rec-model { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; border: 1px solid; margin-bottom: 10px; }
+.rec-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.conclusion-box { background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.08)); border: 1px solid rgba(59,130,246,0.2); border-radius: 16px; padding: 36px; }
+.conclusion-box h2 { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--text); margin-bottom: 14px; }
+.conclusion-box p { font-size: 14px; color: var(--muted); line-height: 1.8; margin-bottom: 12px; }
+.conclusion-box p:last-child { margin-bottom: 0; }
+footer { position: relative; z-index: 1; text-align: center; padding: 28px 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+footer span { background: linear-gradient(90deg, var(--blue), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<nav>
+  <div class="nav-logo">Artifact 05 — Model Trade-offs</div>
+  <a href="index.html" class="nav-back">← Portfolio</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">⚖️ Artifact 05 · AIML-501</div>
+  <h1><span class="l1">Pre-trained Model</span><span class="l2">Trade-off Analysis</span></h1>
+  <p class="hero-sub">Comparing model size, accuracy, speed, and explainability across NLP, Computer Vision, and Tabular domains to guide real-world deployment decisions.</p>
+</div>
+
+<div class="section">
+  <div class="sec-eyebrow" style="color:var(--blue)">01 — Introduction</div>
+  <div class="sec-title">Why Trade-offs Matter</div>
+  <div class="intro-box">
+    <h2>The Challenge of Model Selection</h2>
+    <p>Modern AI deployments rarely have unlimited compute budgets or latency tolerance. Choosing the right pre-trained model requires understanding a fundamental set of trade-offs: a larger model may achieve higher accuracy but demand more memory and slower inference. A smaller, faster model may sacrifice benchmark performance but run efficiently on edge devices or serve millions of requests per second.</p>
+    <p>This analysis compares eight pre-trained models spanning three domains — NLP/Generative AI, Computer Vision, and Tabular Data — across four key criteria: model size, accuracy, inference speed, and explainability. The goal is to provide a clear decision framework for selecting the right model for the right task.</p>
+    <p><strong style="color:var(--text)">Methodology:</strong> Model characteristics were gathered from official documentation, published benchmarks (GLUE, ImageNet, Kaggle leaderboards), and peer-reviewed papers. Speed metrics reflect typical inference on consumer GPU (NVIDIA T4) unless noted.</p>
+  </div>
+
+  <div class="domain-grid">
+    <div class="domain-card">
+      <div class="domain-icon">💬</div>
+      <div class="domain-label">Domain 01</div>
+      <div class="domain-title">NLP / Generative AI</div>
+      <p class="domain-desc">Models trained on massive text corpora to understand, generate, and reason about language. Range from lightweight classifiers (BERT) to trillion-parameter generators (GPT-4). Key benchmarks: GLUE, SuperGLUE, MMLU, HumanEval.</p>
+    </div>
+    <div class="domain-card">
+      <div class="domain-icon">👁️</div>
+      <div class="domain-label">Domain 02</div>
+      <div class="domain-title">Computer Vision</div>
+      <p class="domain-desc">Models trained on image datasets to classify objects, detect boundaries, and segment scenes. Range from mobile-optimized (MobileNet) to high-accuracy research models (EfficientNet). Key benchmark: ImageNet Top-1 Accuracy.</p>
+    </div>
+    <div class="domain-card">
+      <div class="domain-icon">📊</div>
+      <div class="domain-label">Domain 03</div>
+      <div class="domain-title">Tabular Data</div>
+      <p class="domain-desc">Tree-based and gradient boosting models optimized for structured, feature-engineered data. Prioritize speed, interpretability, and performance on heterogeneous feature types. Key benchmark: Kaggle competition performance.</p>
+    </div>
+  </div>
+
+  <!-- DECISION MATRIX -->
+  <div class="sec-eyebrow" style="color:var(--purple)">02 — Decision Matrix</div>
+  <div class="sec-title">Model Comparison at a Glance</div>
+  <div class="sec-sub">Eight models rated across size, accuracy, speed, and explainability.</div>
+  <div class="matrix-wrap">
+    <div class="matrix-title">Pre-trained Model Decision Matrix</div>
+    <div class="matrix-sub">★★★ Excellent &nbsp;|&nbsp; ★★☆ Good &nbsp;|&nbsp; ★☆☆ Limited &nbsp;|&nbsp; Parameters in millions (M) or billions (B)</div>
+    <div class="matrix-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th><th>Domain</th><th>Parameters</th><th>Accuracy / Benchmark</th><th>Inference Speed</th><th>Explainability</th><th>Energy Use</th><th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GPT-4<br><span style="font-size:10px;color:var(--muted);font-weight:400">OpenAI · 2023</span></td>
+            <td><span class="domain-badge badge-nlp">NLP / Gen AI</span></td>
+            <td>~1.8T (est.)</td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:98%;background:linear-gradient(90deg,#10b981,#06b6d4)"></div></div><span class="rating-label">★★★</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">MMLU: 86.4% | HumanEval: 67%</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:25%;background:#ef4444"></div></div><span class="rating-label">★☆☆</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">~20–30s / long prompt</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:40%;background:#f97316"></div></div><span class="rating-label">★★☆</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">Chain-of-Thought available</div></td>
+            <td><span style="color:#ef4444;font-size:12px;font-weight:600">Very High</span></td>
+            <td style="font-size:12px">Complex reasoning, code gen, long documents</td>
+          </tr>
+          <tr>
+            <td>BERT-Base<br><span style="font-size:10px;color:var(--muted);font-weight:400">Google · 2018</span></td>
+            <td><span class="domain-badge badge-nlp">NLP</span></td>
+            <td>110M</td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:72%;background:#f59e0b"></div></div><span class="rating-label">★★☆</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">GLUE: 79.6</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:75%;background:#10b981"></div></div><span class="rating-label">★★★</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">~5ms / sentence</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:55%;background:#f59e0b"></div></div><span class="rating-label">★★☆</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">Attention maps available</div></td>
+            <td><span style="color:#10b981;font-size:12px;font-weight:600">Low</span></td>
+            <td style="font-size:12px">Classification, NER, sentiment analysis</td>
+          </tr>
+          <tr>
+            <td>LLaMA 3 (8B)<br><span style="font-size:10px;color:var(--muted);font-weight:400">Meta · 2024</span></td>
+            <td><span class="domain-badge badge-nlp">NLP / Gen AI</span></td>
+            <td>8B</td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:78%;background:#10b981"></div></div><span class="rating-label">★★★</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">MMLU: 68.4%</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:70%;background:#10b981"></div></div><span class="rating-label">★★★</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">~3–5s / response</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:45%;background:#f97316"></div></div><span class="rating-label">★★☆</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">Open weights, auditable</div></td>
+            <td><span style="color:#f59e0b;font-size:12px;font-weight:600">Moderate</span></td>
+            <td style="font-size:12px">On-premise deployments, open-source projects</td>
+          </tr>
+          <tr>
+            <td>EfficientNet-B7<br><span style="font-size:10px;color:var(--muted);font-weight:400">Google · 2019</span></td>
+            <td><span class="domain-badge badge-cv">Vision</span></td>
+            <td>66M</td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:92%;background:#10b981"></div></div><span class="rating-label">★★★</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">ImageNet Top-1: 84.3%</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:40%;background:#f97316"></div></div><span class="rating-label">★★☆</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">~80ms / image</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:50%;background:#f59e0b"></div></div><span class="rating-label">★★☆</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">Grad-CAM available</div></td>
+            <td><span style="color:#f59e0b;font-size:12px;font-weight:600">Moderate</span></td>
+            <td style="font-size:12px">Medical imaging, high-accuracy classification</td>
+          </tr>
+          <tr>
+            <td>MobileNetV3<br><span style="font-size:10px;color:var(--muted);font-weight:400">Google · 2019</span></td>
+            <td><span class="domain-badge badge-cv">Vision</span></td>
+            <td>5.4M</td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:62%;background:#f59e0b"></div></div><span class="rating-label">★★☆</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">ImageNet Top-1: 75.2%</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:95%;background:#10b981"></div></div><span class="rating-label">★★★</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">~3ms / image (mobile)</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:50%;background:#f59e0b"></div></div><span class="rating-label">★★☆</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">Grad-CAM available</div></td>
+            <td><span style="color:#10b981;font-size:12px;font-weight:600">Very Low</span></td>
+            <td style="font-size:12px">Mobile apps, real-time edge inference</td>
+          </tr>
+          <tr>
+            <td>ViT-L/16<br><span style="font-size:10px;color:var(--muted);font-weight:400">Google · 2020</span></td>
+            <td><span class="domain-badge badge-cv">Vision</span></td>
+            <td>307M</td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:95%;background:#10b981"></div></div><span class="rating-label">★★★</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">ImageNet Top-1: 87.1%</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:35%;background:#ef4444"></div></div><span class="rating-label">★☆☆</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">~120ms / image</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:55%;background:#f59e0b"></div></div><span class="rating-label">★★☆</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">Attention maps (patches)</div></td>
+            <td><span style="color:#f97316;font-size:12px;font-weight:600">High</span></td>
+            <td style="font-size:12px">Research, satellite imagery, fine-grained recognition</td>
+          </tr>
+          <tr>
+            <td>XGBoost<br><span style="font-size:10px;color:var(--muted);font-weight:400">Chen & Guestrin · 2016</span></td>
+            <td><span class="domain-badge badge-tab">Tabular</span></td>
+            <td>N/A (trees)</td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:85%;background:#10b981"></div></div><span class="rating-label">★★★</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">Top Kaggle benchmark</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:90%;background:#10b981"></div></div><span class="rating-label">★★★</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">&lt;1ms / row</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:80%;background:#10b981"></div></div><span class="rating-label">★★★</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">SHAP, feature importance</div></td>
+            <td><span style="color:#10b981;font-size:12px;font-weight:600">Very Low</span></td>
+            <td style="font-size:12px">Fraud detection, clinical risk, churn prediction</td>
+          </tr>
+          <tr>
+            <td>LightGBM<br><span style="font-size:10px;color:var(--muted);font-weight:400">Microsoft · 2017</span></td>
+            <td><span class="domain-badge badge-tab">Tabular</span></td>
+            <td>N/A (trees)</td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:83%;background:#10b981"></div></div><span class="rating-label">★★★</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">Comparable to XGBoost</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:97%;background:#10b981"></div></div><span class="rating-label">★★★</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">&lt;0.5ms / row</div></td>
+            <td><div class="rating-wrap"><div class="rating-bar-track"><div class="rating-bar-fill" style="width:80%;background:#10b981"></div></div><span class="rating-label">★★★</span></div><div style="font-size:11px;color:var(--muted);margin-top:3px">SHAP, feature importance</div></td>
+            <td><span style="color:#10b981;font-size:12px;font-weight:600">Very Low</span></td>
+            <td style="font-size:12px">Large datasets, real-time scoring, finance</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODEL DEEP DIVES -->
+  <div class="sec-eyebrow" style="color:var(--cyan)">03 — Model Deep Dives</div>
+  <div class="sec-title">Strengths, Weaknesses & Use Cases</div>
+  <div class="sec-sub">Detailed breakdown of each model's characteristics and deployment considerations</div>
+
+  <div class="model-grid">
+    <div class="model-card">
+      <div class="model-stripe" style="background:linear-gradient(90deg,#3b82f6,#06b6d4)"></div>
+      <div class="model-body">
+        <div class="model-top"><div class="model-info"><div class="model-name">GPT-4</div><div class="model-org">OpenAI · Mixture of Experts · ~1.8T params</div></div><span class="domain-badge badge-nlp">NLP / Gen AI</span></div>
+        <p class="model-desc">The most capable publicly accessible LLM. Uses a Mixture-of-Experts architecture, activating only a subset of parameters per token. Available via API only.</p>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-label">MMLU Score</div><div class="stat-value">86.4%</div></div>
+          <div class="stat-box"><div class="stat-label">HumanEval</div><div class="stat-value">67%</div></div>
+          <div class="stat-box"><div class="stat-label">Latency</div><div class="stat-value">20–30s / prompt</div></div>
+          <div class="stat-box"><div class="stat-label">Cost</div><div class="stat-value">$10–30 / 1M tokens</div></div>
+        </div>
+        <div class="pros-cons">
+          <div class="pros"><div class="pros-label">✓ Strengths</div><ul><li>Best-in-class reasoning</li><li>Multimodal (vision)</li><li>Chain-of-Thought</li></ul></div>
+          <div class="cons"><div class="cons-label">✗ Weaknesses</div><ul><li>Closed weights</li><li>High API cost</li><li>Slow for real-time</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-stripe" style="background:linear-gradient(90deg,#3b82f6,#8b5cf6)"></div>
+      <div class="model-body">
+        <div class="model-top"><div class="model-info"><div class="model-name">BERT-Base</div><div class="model-org">Google · Transformer Encoder · 110M params</div></div><span class="domain-badge badge-nlp">NLP</span></div>
+        <p class="model-desc">Bidirectional encoder that reads text in both directions. Excellent for classification tasks. Not generative — outputs embeddings, not new text.</p>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-label">GLUE Score</div><div class="stat-value">79.6</div></div>
+          <div class="stat-box"><div class="stat-label">Model Size</div><div class="stat-value">440 MB</div></div>
+          <div class="stat-box"><div class="stat-label">Latency</div><div class="stat-value">~5ms / sentence</div></div>
+          <div class="stat-box"><div class="stat-label">Open Source</div><div class="stat-value">✅ Yes</div></div>
+        </div>
+        <div class="pros-cons">
+          <div class="pros"><div class="pros-label">✓ Strengths</div><ul><li>Fast inference</li><li>Open weights</li><li>Attention maps</li></ul></div>
+          <div class="cons"><div class="cons-label">✗ Weaknesses</div><ul><li>No text generation</li><li>Max 512 tokens</li><li>Lower accuracy than GPT</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-stripe" style="background:linear-gradient(90deg,#ec4899,#8b5cf6)"></div>
+      <div class="model-body">
+        <div class="model-top"><div class="model-info"><div class="model-name">LLaMA 3 (8B)</div><div class="model-org">Meta AI · Transformer Decoder · 8B params</div></div><span class="domain-badge badge-nlp">NLP / Gen AI</span></div>
+        <p class="model-desc">Open-weights generative model competitive with GPT-3.5. Can run on consumer hardware. Ideal for organizations requiring data privacy or on-premise deployment.</p>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-label">MMLU Score</div><div class="stat-value">68.4%</div></div>
+          <div class="stat-box"><div class="stat-label">Model Size</div><div class="stat-value">~16 GB (FP16)</div></div>
+          <div class="stat-box"><div class="stat-label">Latency</div><div class="stat-value">3–5s / response</div></div>
+          <div class="stat-box"><div class="stat-label">Open Source</div><div class="stat-value">✅ Open weights</div></div>
+        </div>
+        <div class="pros-cons">
+          <div class="pros"><div class="pros-label">✓ Strengths</div><ul><li>Self-hostable</li><li>No API cost</li><li>Fine-tunable</li></ul></div>
+          <div class="cons"><div class="cons-label">✗ Weaknesses</div><ul><li>Lower than GPT-4</li><li>Needs GPU hardware</li><li>No native vision</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-stripe" style="background:linear-gradient(90deg,#f59e0b,#10b981)"></div>
+      <div class="model-body">
+        <div class="model-top"><div class="model-info"><div class="model-name">EfficientNet-B7</div><div class="model-org">Google · CNN · 66M params</div></div><span class="domain-badge badge-cv">Vision</span></div>
+        <p class="model-desc">Scales depth, width, and resolution jointly using compound scaling. Achieves state-of-the-art accuracy on ImageNet at far fewer parameters than previous architectures.</p>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-label">ImageNet Top-1</div><div class="stat-value">84.3%</div></div>
+          <div class="stat-box"><div class="stat-label">Model Size</div><div class="stat-value">256 MB</div></div>
+          <div class="stat-box"><div class="stat-label">Latency</div><div class="stat-value">~80ms / image</div></div>
+          <div class="stat-box"><div class="stat-label">Open Source</div><div class="stat-value">✅ Yes</div></div>
+        </div>
+        <div class="pros-cons">
+          <div class="pros"><div class="pros-label">✓ Strengths</div><ul><li>High accuracy</li><li>Efficient parameters</li><li>Transfer learning</li></ul></div>
+          <div class="cons"><div class="cons-label">✗ Weaknesses</div><ul><li>Slower than MobileNet</li><li>Too large for mobile</li><li>Complex fine-tuning</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-stripe" style="background:linear-gradient(90deg,#10b981,#f59e0b)"></div>
+      <div class="model-body">
+        <div class="model-top"><div class="model-info"><div class="model-name">MobileNetV3</div><div class="model-org">Google · Lightweight CNN · 5.4M params</div></div><span class="domain-badge badge-cv">Vision</span></div>
+        <p class="model-desc">Designed for mobile and embedded devices. Uses depthwise separable convolutions and Neural Architecture Search to minimize latency while maintaining reasonable accuracy.</p>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-label">ImageNet Top-1</div><div class="stat-value">75.2%</div></div>
+          <div class="stat-box"><div class="stat-label">Model Size</div><div class="stat-value">~22 MB</div></div>
+          <div class="stat-box"><div class="stat-label">Latency</div><div class="stat-value">~3ms (mobile)</div></div>
+          <div class="stat-box"><div class="stat-label">Open Source</div><div class="stat-value">✅ Yes</div></div>
+        </div>
+        <div class="pros-cons">
+          <div class="pros"><div class="pros-label">✓ Strengths</div><ul><li>Runs on phones</li><li>Ultra-fast inference</li><li>Tiny memory footprint</li></ul></div>
+          <div class="cons"><div class="cons-label">✗ Weaknesses</div><ul><li>Lower accuracy</li><li>Poor for complex scenes</li><li>Limited feature depth</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="model-card">
+      <div class="model-stripe" style="background:linear-gradient(90deg,#86efac,#06b6d4)"></div>
+      <div class="model-body">
+        <div class="model-top"><div class="model-info"><div class="model-name">XGBoost</div><div class="model-org">Chen & Guestrin · Gradient Boosted Trees</div></div><span class="domain-badge badge-tab">Tabular</span></div>
+        <p class="model-desc">The dominant algorithm for structured/tabular data. Uses gradient boosting with regularization, parallel tree construction, and built-in handling of missing values.</p>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-label">Benchmark</div><div class="stat-value">Top Kaggle SOTA</div></div>
+          <div class="stat-box"><div class="stat-label">Memory</div><div class="stat-value">Scales with data</div></div>
+          <div class="stat-box"><div class="stat-label">Latency</div><div class="stat-value">&lt;1ms / row</div></div>
+          <div class="stat-box"><div class="stat-label">Open Source</div><div class="stat-value">✅ Yes</div></div>
+        </div>
+        <div class="pros-cons">
+          <div class="pros"><div class="pros-label">✓ Strengths</div><ul><li>SHAP interpretability</li><li>Handles missing values</li><li>Extremely fast</li></ul></div>
+          <div class="cons"><div class="cons-label">✗ Weaknesses</div><ul><li>Poor on images/text</li><li>Needs feature engineering</li><li>Many hyperparameters</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECOMMENDATIONS -->
+  <div class="sec-eyebrow" style="color:var(--green)">04 — Recommendations</div>
+  <div class="sec-title">Which Model for Which Scenario?</div>
+  <div class="sec-sub">Scenario-based guidance for selecting the right pre-trained model</div>
+  <div class="rec-grid">
+    <div class="rec-card">
+      <div class="rec-scenario">Scenario 01</div>
+      <div class="rec-title">Healthcare Diagnosis Assistant</div>
+      <div class="rec-model" style="color:#fde68a;border-color:rgba(253,230,138,0.3);background:rgba(253,230,138,0.08)">🏥 EfficientNet-B7 + BERT</div>
+      <p class="rec-desc">Use EfficientNet-B7 for imaging where accuracy is paramount. Pair with BERT for clinical note analysis. Both support Grad-CAM and attention visualization for regulatory explainability.</p>
+    </div>
+    <div class="rec-card">
+      <div class="rec-scenario">Scenario 02</div>
+      <div class="rec-title">Real-time Mobile App (Camera)</div>
+      <div class="rec-model" style="color:#86efac;border-color:rgba(134,239,172,0.3);background:rgba(134,239,172,0.08)">📱 MobileNetV3</div>
+      <p class="rec-desc">MobileNetV3 is the only viable option for on-device real-time inference. At 5.4M parameters and ~3ms latency, it fits within mobile memory constraints while delivering acceptable accuracy.</p>
+    </div>
+    <div class="rec-card">
+      <div class="rec-scenario">Scenario 03</div>
+      <div class="rec-title">Customer Churn / Credit Risk</div>
+      <div class="rec-model" style="color:#6ee7b7;border-color:rgba(110,231,183,0.3);background:rgba(110,231,183,0.08)">📊 XGBoost or LightGBM</div>
+      <p class="rec-desc">For tabular data with business-critical outcomes, XGBoost or LightGBM are the clear choice. SHAP values provide individual-level explanations that satisfy regulatory requirements in finance.</p>
+    </div>
+    <div class="rec-card">
+      <div class="rec-scenario">Scenario 04</div>
+      <div class="rec-title">Enterprise Chatbot / Code Assistant</div>
+      <div class="rec-model" style="color:#93c5fd;border-color:rgba(147,197,253,0.3);background:rgba(147,197,253,0.08)">🤖 GPT-4 (API)</div>
+      <p class="rec-desc">Where accuracy and reasoning quality matter more than cost or latency, GPT-4 is the right choice. Use with system prompts and Chain-of-Thought for auditable reasoning.</p>
+    </div>
+    <div class="rec-card">
+      <div class="rec-scenario">Scenario 05</div>
+      <div class="rec-title">On-Premise LLM (Data Privacy)</div>
+      <div class="rec-model" style="color:#c4b5fd;border-color:rgba(196,181,253,0.3);background:rgba(196,181,253,0.08)">🦙 LLaMA 3 (8B)</div>
+      <p class="rec-desc">For organizations that cannot send data to external APIs (healthcare, legal, government), LLaMA 3 8B runs on a single A100 GPU with no data leaving the building.</p>
+    </div>
+    <div class="rec-card">
+      <div class="rec-scenario">Scenario 06</div>
+      <div class="rec-title">Sentiment Analysis at Scale</div>
+      <div class="rec-model" style="color:#93c5fd;border-color:rgba(147,197,253,0.3);background:rgba(147,197,253,0.08)">📝 BERT-Base</div>
+      <p class="rec-desc">BERT-Base fine-tuned on domain-specific data is the most cost-effective option for classification tasks at high throughput. 5ms latency enables processing millions of records per hour.</p>
+    </div>
+  </div>
+
+  <!-- CONCLUSION -->
+  <div class="sec-eyebrow" style="color:var(--blue)">05 — Conclusion</div>
+  <div class="sec-title">Key Takeaways</div>
+  <div class="sec-sub" style="margin-bottom:20px">What this analysis means for real-world AI deployment</div>
+  <div class="conclusion-box">
+    <h2>Summary & Design Rationale</h2>
+    <p>This analysis demonstrates that there is no single "best" pre-trained model — only the best model for a specific context. The three domains analyzed each have distinct performance dynamics: NLP models trade size for capability, Vision models trade accuracy for speed, and Tabular models uniquely combine high accuracy with interpretability and fast inference.</p>
+    <p>The most important insight is the <strong style="color:var(--text)">explainability gap</strong> between domains. Tabular models offer native SHAP-based explanations that satisfy regulatory requirements. Vision models support Grad-CAM visualization. LLMs rely on Chain-of-Thought prompting — a weaker form of explainability that cannot fully expose internal reasoning. For high-stakes applications in healthcare, finance, and law, this gap is a critical consideration that should drive model selection as much as accuracy or speed.</p>
+    <p>Model selection is not a one-time decision. Practitioners should benchmark on their specific dataset, measure latency under production traffic, and conduct bias audits before deployment. As the model landscape evolves rapidly, revisiting these choices regularly is essential.</p>
+  </div>
+</div>
+
+<footer><p>AIML-501 · Pre-trained Model Trade-off Analysis · <span>Artifact 05</span></p></footer>
+</body>
+</html>
